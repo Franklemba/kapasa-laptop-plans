@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Catalog from "./pages/Catalog";
+import LaptopDetails from "./pages/LaptopDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
