@@ -36,6 +36,15 @@ const LaptopDetails = () => {
     `https://images.unsplash.com/${laptop.image}?w=600&h=400&fit=crop&brightness=1.1`,
   ];
 
+  const handleApplyForPlan = (weeklyPayment?: number, downPayment?: number, loanTerm?: number) => {
+    const params = new URLSearchParams();
+    if (weeklyPayment) params.set('weeklyPayment', weeklyPayment.toString());
+    if (downPayment) params.set('downPayment', downPayment.toString());
+    if (loanTerm) params.set('loanTerm', loanTerm.toString());
+    
+    navigate(`/catalog/${id}/apply?${params.toString()}`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -135,7 +144,10 @@ const LaptopDetails = () => {
                 or ${laptop.weeklyPayment}/week with our payment plan
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <Button className="w-full">
+                <Button 
+                  className="w-full"
+                  onClick={() => handleApplyForPlan()}
+                >
                   Start Payment Plan
                 </Button>
                 <Button 
@@ -240,7 +252,10 @@ const LaptopDetails = () => {
           <Button variant="outline" className="flex-1">
             Add to Wishlist
           </Button>
-          <Button className="flex-2">
+          <Button 
+            className="flex-2"
+            onClick={() => handleApplyForPlan()}
+          >
             Apply for Payment Plan
           </Button>
         </div>

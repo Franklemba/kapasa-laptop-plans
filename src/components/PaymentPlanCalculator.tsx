@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,8 @@ interface PaymentPlanCalculatorProps {
 }
 
 const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculatorProps) => {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [downPayment, setDownPayment] = useState(0);
   const [loanTermWeeks, setLoanTermWeeks] = useState([52]); // Default 1 year
   const [interestRate, setInterestRate] = useState(15); // 15% annual interest
@@ -55,6 +58,15 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
     { weeks: 78, label: "1.5 years" },
     { weeks: 104, label: "2 years" },
   ];
+
+  const handleApplyWithCalculation = () => {
+    const params = new URLSearchParams();
+    params.set('weeklyPayment', weeklyPayment.toString());
+    params.set('downPayment', downPayment.toString());
+    params.set('loanTerm', loanTermWeeks[0].toString());
+    
+    navigate(`/catalog/${id}/apply?${params.toString()}`);
+  };
 
   return (
     <Card>
@@ -165,7 +177,11 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
 
         {/* Action Buttons */}
         <div className="space-y-2">
-          <Button className="w-full" size="lg">
+          <Button 
+            className="w-full" 
+            size="lg"
+            onClick={handleApplyWithCalculation}
+          >
             Apply for This Plan
           </Button>
           <Button variant="outline" className="w-full">
