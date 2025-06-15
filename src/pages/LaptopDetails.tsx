@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,11 +6,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Star, Cpu, HardDrive, Monitor, MemoryStick, Wifi, Battery, Camera, Volume2, Share, Heart } from "lucide-react";
 import { laptopData } from "@/data/laptops";
+import PaymentPlanCalculator from "@/components/PaymentPlanCalculator";
 
 const LaptopDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showCalculator, setShowCalculator] = useState(false);
   
   const laptop = laptopData.find(l => l.id === id);
   
@@ -135,12 +138,24 @@ const LaptopDetails = () => {
                 <Button className="w-full">
                   Start Payment Plan
                 </Button>
-                <Button variant="outline" className="w-full">
-                  Calculate Plan
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setShowCalculator(!showCalculator)}
+                >
+                  {showCalculator ? "Hide" : "Calculate"} Plan
                 </Button>
               </div>
             </CardContent>
           </Card>
+
+          {/* Payment Plan Calculator */}
+          {showCalculator && (
+            <PaymentPlanCalculator 
+              laptopPrice={laptop.price}
+              laptopName={`${laptop.brand} ${laptop.name}`}
+            />
+          )}
 
           {/* Key Specifications */}
           <Card>
