@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Star, Cpu, HardDrive, Monitor, Memory, Wifi, Battery, Camera, Volume2, Share, Heart } from "lucide-react";
+import { ArrowLeft, Star, Cpu, HardDrive, Monitor, MemoryStick, Wifi, Battery, Camera, Volume2, Share, Heart } from "lucide-react";
 import { laptopData } from "@/data/laptops";
 
 const LaptopDetails = () => {
@@ -157,7 +156,7 @@ const LaptopDetails = () => {
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-border/50">
                   <div className="flex items-center space-x-2">
-                    <Memory className="h-4 w-4 text-muted-foreground" />
+                    <MemoryStick className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">Memory</span>
                   </div>
                   <span className="text-sm font-medium">{laptop.ram}</span>
