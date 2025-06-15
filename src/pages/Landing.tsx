@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Laptop, CreditCard, Users } from "lucide-react";
@@ -15,6 +14,9 @@ const Landing = () => {
             <h1 className="text-2xl font-bold text-primary">Uncle Kapasa's Laptops</h1>
           </div>
           <div className="space-x-4">
+            <Button variant="ghost" asChild>
+              <Link to="/catalog">Browse Laptops</Link>
+            </Button>
             <Button variant="ghost" asChild>
               <Link to="/login">Login</Link>
             </Button>
@@ -33,9 +35,14 @@ const Landing = () => {
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
           Get the laptop you need today and pay in affordable installments. No credit checks, just simple and transparent payment plans.
         </p>
-        <Button size="lg" className="text-lg px-8 py-4" asChild>
-          <Link to="/register">Start Your Plan Today</Link>
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button size="lg" className="text-lg px-8 py-4" asChild>
+            <Link to="/catalog">Browse Laptops</Link>
+          </Button>
+          <Button size="lg" variant="outline" className="text-lg px-8 py-4" asChild>
+            <Link to="/register">Start Your Plan</Link>
+          </Button>
+        </div>
       </section>
 
       {/* How It Works */}
