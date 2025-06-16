@@ -1,120 +1,352 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Laptop, Calendar, CreditCard, History } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Laptop, 
+  Calendar, 
+  CreditCard, 
+  History, 
+  TrendingUp, 
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  User,
+  Bell,
+  Settings
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
+  const [notifications, setNotifications] = useState([
+    { id: 1, message: "Payment due in 3 days", type: "warning" },
+    { id: 2, message: "Payment received successfully", type: "success" }
+  ]);
+
+  // Mock user data - in real app this would come from API
+  const userData = {
+    name: "John Doe",
+    email: "john.doe@email.com",
+    currentPlan: {
+      laptop: "MacBook Pro 13\"",
+      totalPrice: 1200,
+      amountPaid: 800,
+      weeklyPayment: 100,
+      nextPaymentDate: "Dec 15, 2024",
+      paymentsRemaining: 4,
+      status: "active"
+    },
+    paymentHistory: [
+      { date: "Nov 15, 2024", amount: 100, status: "completed" },
+      { date: "Nov 8, 2024", amount: 100, status: "completed" },
+      { date: "Nov 1, 2024", amount: 100, status: "completed" },
+      { date: "Oct 25, 2024", amount: 100, status: "completed" }
+    ]
+  };
+
+  const progressPercentage = (userData.currentPlan.amountPaid / userData.currentPlan.totalPrice) * 100;
+  const remainingAmount = userData.currentPlan.totalPrice - userData.currentPlan.amountPaid;
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Laptop className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">Uncle Kapasa's</h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-muted-foreground">Welcome back, John!</span>
-            <Button variant="outline" size="sm">
-              Logout
-            </Button>
+      {/* Enhanced Header */}
+      <header className="border-b bg-card shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Laptop className="h-8 w-8 text-primary" />
+                <h1 className="text-2xl font-bold text-primary">Uncle Kapasa's</h1>
+              </div>
+              <Badge variant="secondary" className="hidden md:inline-flex">
+                Premium Member
+              </Badge>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="hidden md:block text-right">
+                <p className="text-sm font-medium">Welcome back, {userData.name}!</p>
+                <p className="text-xs text-muted-foreground">{userData.email}</p>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm" className="relative">
+                  <Bell className="h-4 w-4" />
+                  {notifications.length > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
+                      {notifications.length}
+                    </Badge>
+                  )}
+                </Button>
+                
+                <Button variant="ghost" size="sm">
+                  <Settings className="h-4 w-4" />
+                </Button>
+                
+                <Button variant="outline" size="sm">
+                  Logout
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Your Dashboard</h2>
           <p className="text-muted-foreground">Track your laptop payment plan and manage your account</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Payment Progress */}
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <CreditCard className="h-5 w-5" />
-                <span>Payment Progress</span>
-              </CardTitle>
-              <CardDescription>MacBook Pro 13" - Payment Plan</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Progress</span>
-                    <span>$800 / $1,200</span>
-                  </div>
-                  <Progress value={67} className="h-3" />
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Amount Paid</p>
-                    <p className="font-semibold">$800.00</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Remaining</p>
-                    <p className="font-semibold">$400.00</p>
-                  </div>
-                </div>
+        {/* Notifications */}
+        {notifications.length > 0 && (
+          <div className="mb-6 space-y-2">
+            {notifications.map((notification) => (
+              <div
+                key={notification.id}
+                className={`flex items-center space-x-2 p-3 rounded-lg border ${
+                  notification.type === 'warning' 
+                    ? 'bg-yellow-50 border-yellow-200 text-yellow-800' 
+                    : 'bg-green-50 border-green-200 text-green-800'
+                }`}
+              >
+                {notification.type === 'warning' ? (
+                  <AlertCircle className="h-4 w-4" />
+                ) : (
+                  <CheckCircle className="h-4 w-4" />
+                )}
+                <span className="text-sm font-medium">{notification.message}</span>
               </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
+        )}
 
-          {/* Next Payment */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5" />
-                <span>Next Payment</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">$100.00</p>
-                <p className="text-sm text-muted-foreground">Due: Dec 15, 2024</p>
-                <Button className="w-full mt-4">Make Payment</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+          </TabsList>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-6 text-center">
-              <CreditCard className="h-8 w-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold">Make Payment</h3>
-              <p className="text-sm text-muted-foreground">Pay your next installment</p>
-            </CardContent>
-          </Card>
+          <TabsContent value="overview" className="space-y-6">
+            {/* Main Stats Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Payment Progress Card */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <CreditCard className="h-5 w-5" />
+                      <span>Payment Progress</span>
+                    </div>
+                    <Badge variant={userData.currentPlan.status === 'active' ? 'default' : 'secondary'}>
+                      {userData.currentPlan.status}
+                    </Badge>
+                  </CardTitle>
+                  <CardDescription>{userData.currentPlan.laptop}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Progress</span>
+                        <span>${userData.currentPlan.amountPaid.toLocaleString()} / ${userData.currentPlan.totalPrice.toLocaleString()}</span>
+                      </div>
+                      <Progress value={progressPercentage} className="h-3" />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {Math.round(progressPercentage)}% completed
+                      </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Paid</p>
+                        <p className="font-semibold text-green-600">${userData.currentPlan.amountPaid.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Remaining</p>
+                        <p className="font-semibold">${remainingAmount.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Payments Left</p>
+                        <p className="font-semibold">{userData.currentPlan.paymentsRemaining}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-6 text-center">
-              <History className="h-8 w-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold">Payment History</h3>
-              <p className="text-sm text-muted-foreground">View all transactions</p>
-            </CardContent>
-          </Card>
+              {/* Next Payment */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5" />
+                    <span>Next Payment</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <div className="space-y-2">
+                    <p className="text-3xl font-bold text-primary">
+                      ${userData.currentPlan.weeklyPayment.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Due: {userData.currentPlan.nextPaymentDate}
+                    </p>
+                    <Button className="w-full mt-4">
+                      Make Payment
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-6 text-center">
-              <Calendar className="h-8 w-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold">Payment Schedule</h3>
-              <p className="text-sm text-muted-foreground">See upcoming payments</p>
-            </CardContent>
-          </Card>
+              {/* Quick Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5" />
+                    <span>Stats</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">On-time payments</span>
+                    <span className="font-semibold text-green-600">100%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Plan duration</span>
+                    <span className="font-semibold">12 weeks</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Weekly amount</span>
+                    <span className="font-semibold">${userData.currentPlan.weeklyPayment}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-6 text-center">
-              <Laptop className="h-8 w-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold">Browse Laptops</h3>
-              <p className="text-sm text-muted-foreground">Start a new plan</p>
-            </CardContent>
-          </Card>
-        </div>
+            {/* Quick Actions */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="cursor-pointer hover:shadow-md transition-shadow group">
+                <CardContent className="p-6 text-center">
+                  <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                    <CreditCard className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-1">Make Payment</h3>
+                  <p className="text-sm text-muted-foreground">Pay your next installment</p>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-md transition-shadow group">
+                <CardContent className="p-6 text-center">
+                  <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                    <History className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-1">Payment History</h3>
+                  <p className="text-sm text-muted-foreground">View all transactions</p>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-md transition-shadow group">
+                <CardContent className="p-6 text-center">
+                  <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                    <Calendar className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-1">Payment Schedule</h3>
+                  <p className="text-sm text-muted-foreground">See upcoming payments</p>
+                </CardContent>
+              </Card>
+
+              <Link to="/catalog">
+                <Card className="cursor-pointer hover:shadow-md transition-shadow group h-full">
+                  <CardContent className="p-6 text-center">
+                    <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                      <Laptop className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="font-semibold mb-1">Browse Laptops</h3>
+                    <p className="text-sm text-muted-foreground">Start a new plan</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <History className="h-5 w-5" />
+                  <span>Payment History</span>
+                </CardTitle>
+                <CardDescription>Your recent payment transactions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {userData.paymentHistory.map((payment, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <div className="p-2 bg-green-100 rounded-full">
+                          <DollarSign className="h-4 w-4 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Payment #{userData.paymentHistory.length - index}</p>
+                          <p className="text-sm text-muted-foreground">{payment.date}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">${payment.amount.toLocaleString()}</p>
+                        <Badge variant="outline" className="text-xs">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          {payment.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="profile" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <User className="h-5 w-5" />
+                  <span>Profile Information</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Full Name</label>
+                    <p className="font-medium">{userData.name}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Email</label>
+                    <p className="font-medium">{userData.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Plan Status</label>
+                    <Badge variant="default" className="mt-1">Active</Badge>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Member Since</label>
+                    <p className="font-medium">October 2024</p>
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <Button variant="outline" className="mr-2">Edit Profile</Button>
+                  <Button variant="outline">Change Password</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
