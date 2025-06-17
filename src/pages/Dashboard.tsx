@@ -13,13 +13,11 @@ import {
   TrendingUp, 
   AlertCircle,
   CheckCircle,
-  Clock,
   DollarSign,
-  User,
-  Bell,
-  Settings
+  User
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { MobileLayout } from "@/components/MobileLayout";
 
 const Dashboard = () => {
   const [notifications, setNotifications] = useState([
@@ -52,60 +50,17 @@ const Dashboard = () => {
   const remainingAmount = userData.currentPlan.totalPrice - userData.currentPlan.amountPaid;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Enhanced Header */}
-      <header className="border-b bg-card shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Laptop className="h-8 w-8 text-primary" />
-                <h1 className="text-2xl font-bold text-primary">Uncle Kapasa's</h1>
-              </div>
-              <Badge variant="secondary" className="hidden md:inline-flex">
-                Premium Member
-              </Badge>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="hidden md:block text-right">
-                <p className="text-sm font-medium">Welcome back, {userData.name}!</p>
-                <p className="text-xs text-muted-foreground">{userData.email}</p>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="h-4 w-4" />
-                  {notifications.length > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
-                      {notifications.length}
-                    </Badge>
-                  )}
-                </Button>
-                
-                <Button variant="ghost" size="sm">
-                  <Settings className="h-4 w-4" />
-                </Button>
-                
-                <Button variant="outline" size="sm">
-                  Logout
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
+    <MobileLayout notifications={notifications.length}>
+      <div className="container mx-auto px-4 py-6 lg:py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Your Dashboard</h2>
+        <div className="mb-6 lg:mb-8">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-2">Your Dashboard</h2>
           <p className="text-muted-foreground">Track your laptop payment plan and manage your account</p>
         </div>
 
         {/* Notifications */}
         {notifications.length > 0 && (
-          <div className="mb-6 space-y-2">
+          <div className="mb-4 lg:mb-6 space-y-2">
             {notifications.map((notification) => (
               <div
                 key={notification.id}
@@ -116,9 +71,9 @@ const Dashboard = () => {
                 }`}
               >
                 {notification.type === 'warning' ? (
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 ) : (
-                  <CheckCircle className="h-4 w-4" />
+                  <CheckCircle className="h-4 w-4 flex-shrink-0" />
                 )}
                 <span className="text-sm font-medium">{notification.message}</span>
               </div>
@@ -126,18 +81,18 @@ const Dashboard = () => {
           </div>
         )}
 
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue="overview" className="space-y-4 lg:space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            {/* Main Stats Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <TabsContent value="overview" className="space-y-4 lg:space-y-6">
+            {/* Main Stats Grid - Responsive */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
               {/* Payment Progress Card */}
-              <Card className="md:col-span-2">
+              <Card className="lg:col-span-2">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -191,7 +146,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="text-center">
                   <div className="space-y-2">
-                    <p className="text-3xl font-bold text-primary">
+                    <p className="text-2xl lg:text-3xl font-bold text-primary">
                       ${userData.currentPlan.weeklyPayment.toLocaleString()}
                     </p>
                     <p className="text-sm text-muted-foreground">
@@ -229,46 +184,46 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Quick Actions - Mobile Responsive Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="cursor-pointer hover:shadow-md transition-shadow group">
-                <CardContent className="p-6 text-center">
+                <CardContent className="p-4 lg:p-6 text-center">
                   <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                    <CreditCard className="h-6 w-6 text-primary" />
+                    <CreditCard className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-1">Make Payment</h3>
-                  <p className="text-sm text-muted-foreground">Pay your next installment</p>
+                  <h3 className="font-semibold mb-1 text-sm lg:text-base">Make Payment</h3>
+                  <p className="text-xs lg:text-sm text-muted-foreground">Pay your next installment</p>
                 </CardContent>
               </Card>
 
               <Card className="cursor-pointer hover:shadow-md transition-shadow group">
-                <CardContent className="p-6 text-center">
+                <CardContent className="p-4 lg:p-6 text-center">
                   <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                    <History className="h-6 w-6 text-primary" />
+                    <History className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-1">Payment History</h3>
-                  <p className="text-sm text-muted-foreground">View all transactions</p>
+                  <h3 className="font-semibold mb-1 text-sm lg:text-base">Payment History</h3>
+                  <p className="text-xs lg:text-sm text-muted-foreground">View all transactions</p>
                 </CardContent>
               </Card>
 
               <Card className="cursor-pointer hover:shadow-md transition-shadow group">
-                <CardContent className="p-6 text-center">
+                <CardContent className="p-4 lg:p-6 text-center">
                   <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                    <Calendar className="h-6 w-6 text-primary" />
+                    <Calendar className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-1">Payment Schedule</h3>
-                  <p className="text-sm text-muted-foreground">See upcoming payments</p>
+                  <h3 className="font-semibold mb-1 text-sm lg:text-base">Payment Schedule</h3>
+                  <p className="text-xs lg:text-sm text-muted-foreground">See upcoming payments</p>
                 </CardContent>
               </Card>
 
               <Link to="/catalog">
                 <Card className="cursor-pointer hover:shadow-md transition-shadow group h-full">
-                  <CardContent className="p-6 text-center">
+                  <CardContent className="p-4 lg:p-6 text-center">
                     <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                      <Laptop className="h-6 w-6 text-primary" />
+                      <Laptop className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
                     </div>
-                    <h3 className="font-semibold mb-1">Browse Laptops</h3>
-                    <p className="text-sm text-muted-foreground">Start a new plan</p>
+                    <h3 className="font-semibold mb-1 text-sm lg:text-base">Browse Laptops</h3>
+                    <p className="text-xs lg:text-sm text-muted-foreground">Start a new plan</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -348,7 +303,7 @@ const Dashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </MobileLayout>
   );
 };
 
