@@ -39,21 +39,20 @@ const accountItems = [
 ];
 
 export function AppSidebar() {
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const isCollapsed = state === "collapsed";
 
   const isActive = (path: string) => currentPath === path;
-  const isMainExpanded = mainItems.some((item) => isActive(item.url));
-  const isAccountExpanded = accountItems.some((item) => isActive(item.url));
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-primary text-primary-foreground font-medium" : "hover:bg-muted/50";
 
   return (
     <Sidebar
-      className={collapsed ? "w-14" : "w-64"}
-      collapsible
+      className={isCollapsed ? "w-14" : "w-64"}
+      collapsible="icon"
     >
       <SidebarTrigger className="m-2 self-end" />
 
@@ -62,7 +61,7 @@ export function AppSidebar() {
         <div className="p-4 border-b">
           <div className="flex items-center space-x-2">
             <Laptop className="h-6 w-6 text-primary" />
-            {!collapsed && (
+            {!isCollapsed && (
               <div>
                 <h2 className="text-lg font-bold text-primary">Uncle Kapasa's</h2>
                 <Badge variant="secondary" className="text-xs">Premium Member</Badge>
@@ -72,10 +71,7 @@ export function AppSidebar() {
         </div>
 
         {/* Main Navigation */}
-        <SidebarGroup
-          open={isMainExpanded}
-          onOpenChange={() => {}}
-        >
+        <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -84,7 +80,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
                       <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -94,10 +90,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Account */}
-        <SidebarGroup
-          open={isAccountExpanded}
-          onOpenChange={() => {}}
-        >
+        <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -106,7 +99,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
                       <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -119,7 +112,7 @@ export function AppSidebar() {
         <div className="mt-auto p-4 border-t">
           <SidebarMenuButton className="w-full justify-start text-destructive hover:bg-destructive/10">
             <LogOut className="mr-2 h-4 w-4" />
-            {!collapsed && <span>Logout</span>}
+            {!isCollapsed && <span>Logout</span>}
           </SidebarMenuButton>
         </div>
       </SidebarContent>

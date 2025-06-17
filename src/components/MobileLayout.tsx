@@ -16,7 +16,7 @@ export function MobileLayout({ children, notifications = 0 }: MobileLayoutProps)
   const isMobile = useIsMobile();
 
   return (
-    <SidebarProvider collapsedWidth={56}>
+    <SidebarProvider>
       <div className="min-h-screen flex w-full">
         {/* Sidebar - hidden on mobile, shown as overlay when triggered */}
         <AppSidebar />
