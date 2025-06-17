@@ -1,8 +1,7 @@
-
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.11e5512df62e48dbb8457f1bfe2d4e96',
+  appId: 'com.lovable.kapasalaptopplans', // Changed to valid format
   appName: 'kapasa-laptop-plans',
   webDir: 'dist',
   server: {

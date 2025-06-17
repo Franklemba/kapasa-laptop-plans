@@ -19,9 +19,9 @@ const Catalog = () => {
                          laptop.brand.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesPrice = priceFilter === "all" || 
-                        (priceFilter === "budget" && laptop.price <= 800) ||
-                        (priceFilter === "mid" && laptop.price > 800 && laptop.price <= 1500) ||
-                        (priceFilter === "premium" && laptop.price > 1500);
+                        (priceFilter === "budget" && laptop.price <= 4000) ||
+                        (priceFilter === "mid" && laptop.price > 4000 && laptop.price <= 6500) ||
+                        (priceFilter === "premium" && laptop.price > 6500);
                         
     return matchesSearch && matchesPrice;
   });
@@ -72,7 +72,7 @@ const Catalog = () => {
             onClick={() => setPriceFilter("budget")}
             className="whitespace-nowrap"
           >
-            Under $800
+            Under K4000
           </Button>
           <Button
             variant={priceFilter === "mid" ? "default" : "outline"}
@@ -80,7 +80,7 @@ const Catalog = () => {
             onClick={() => setPriceFilter("mid")}
             className="whitespace-nowrap"
           >
-            $800 - $1500
+            K4000 - K6500
           </Button>
           <Button
             variant={priceFilter === "premium" ? "default" : "outline"}
@@ -88,7 +88,7 @@ const Catalog = () => {
             onClick={() => setPriceFilter("premium")}
             className="whitespace-nowrap"
           >
-            $1500+
+            K6500+
           </Button>
         </div>
       </div>

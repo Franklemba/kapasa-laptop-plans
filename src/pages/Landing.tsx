@@ -11,7 +11,7 @@ const Landing = () => {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Laptop className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">Uncle Kapasa's Laptops</h1>
+            <h1 className="text-2xl font-bold text-primary">Kapasa's Laptops</h1>
           </div>
           <div className="space-x-4">
             <Button variant="ghost" asChild>
@@ -153,7 +153,7 @@ const Landing = () => {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Laptop className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">Uncle Kapasa's Laptops</h1>
+            <h1 className="text-2xl font-bold text-primary">Kapasa's Laptops</h1>
           </div>
           <p className="text-muted-foreground">
             Making technology accessible through flexible payment solutions.

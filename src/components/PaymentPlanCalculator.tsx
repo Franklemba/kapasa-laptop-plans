@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,9 +21,16 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
   const [weeklyPayment, setWeeklyPayment] = useState(0);
   const [totalPayment, setTotalPayment] = useState(0);
   const [totalInterest, setTotalInterest] = useState(0);
+  const [loanTermOptions, setLoanTermOptions] = useState([
+    { weeks: 2, label: "2 Weeks" ,flatInterestRate: 5},
+    { weeks: 4, label: "1 Month" ,flatInterestRate: 8},
+    { weeks: 8, label: "2 Months" ,flatInterestRate: 12},
+    { weeks: 12, label: "3 Months" ,flatInterestRate: 15},
+  ]);
 
   const maxDownPayment = Math.floor(laptopPrice * 0.8); // Max 80% down payment
   const downPaymentPercentage = Math.round((downPayment / laptopPrice) * 100);
+  const minDownPayment = Math.floor(laptopPrice * 0.5); // Min 50% down payment
 
   // Calculate payment plan
   useEffect(() => {
@@ -39,25 +45,27 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
       return;
     }
 
+    const selectedOption = loanTermOptions.find(opt => opt.weeks === loanTermWeeks[0]);
+    if (selectedOption) {
+      setInterestRate(selectedOption.flatInterestRate);
+    }
+
     // Calculate weekly payment using loan formula
     const weeklyPmt = principal * 
       (weeklyInterestRate * Math.pow(1 + weeklyInterestRate, weeks)) / 
       (Math.pow(1 + weeklyInterestRate, weeks) - 1);
-    
+
     const totalPmt = (weeklyPmt * weeks) + downPayment;
     const totalInt = totalPmt - laptopPrice;
 
     setWeeklyPayment(Math.round(weeklyPmt * 100) / 100);
     setTotalPayment(Math.round(totalPmt * 100) / 100);
     setTotalInterest(Math.round(totalInt * 100) / 100);
-  }, [downPayment, loanTermWeeks, interestRate, laptopPrice]);
 
-  const loanTermOptions = [
-    { weeks: 26, label: "6 months" },
-    { weeks: 52, label: "1 year" },
-    { weeks: 78, label: "1.5 years" },
-    { weeks: 104, label: "2 years" },
-  ];
+  }, [downPayment, loanTermWeeks, interestRate, laptopPrice, loanTermOptions]);
+
+
+  
 
   const handleApplyWithCalculation = () => {
     const params = new URLSearchParams();
@@ -79,17 +87,18 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
       <CardContent className="space-y-6">
         {/* Down Payment */}
         <div className="space-y-3">
-          <Label>Down Payment: ${downPayment.toLocaleString()} ({downPaymentPercentage}%)</Label>
+          <Label>Down Payment: K{downPayment.toLocaleString()} ({downPaymentPercentage}%)</Label>
           <Slider
             value={[downPayment]}
             onValueChange={(value) => setDownPayment(value[0])}
+            min={minDownPayment}
             max={maxDownPayment}
             step={50}
             className="w-full"
           />
           <div className="flex justify-between text-sm text-muted-foreground">
-            <span>$0</span>
-            <span>${maxDownPayment.toLocaleString()}</span>
+            <span>K{minDownPayment.toLocaleString()}</span>
+            <span>K{maxDownPayment.toLocaleString()}</span>
           </div>
         </div>
 
@@ -102,7 +111,7 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
             placeholder="Enter down payment"
             value={downPayment || ""}
             onChange={(e) => {
-              const value = Math.min(Number(e.target.value) || 0, maxDownPayment);
+              const value = Math.min(Number(e.target.value) || minDownPayment, maxDownPayment);
               setDownPayment(value);
             }}
           />
@@ -125,19 +134,10 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
           </div>
         </div>
 
-        {/* Interest Rate */}
-        <div className="space-y-2">
-          <Label htmlFor="interestRate">Annual Interest Rate: {interestRate}%</Label>
-          <Input
-            id="interestRate"
-            type="number"
-            min="0"
-            max="30"
-            step="0.1"
-            value={interestRate}
-            onChange={(e) => setInterestRate(Number(e.target.value) || 0)}
-          />
-        </div>
+            {/* Interest Rate */}
+      <div className="space-y-2">
+        <Label>Flat Interest Rate for this Term: {interestRate}%</Label>
+      </div>
 
         {/* Payment Summary */}
         <div className="space-y-4 p-4 bg-muted rounded-lg">
@@ -150,26 +150,26 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Weekly Payment:</span>
               <span className="text-xl font-bold text-primary">
-                ${weeklyPayment.toLocaleString()}
+                K{weeklyPayment.toLocaleString()}
               </span>
             </div>
             
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Total Payment:</span>
-              <span className="font-medium">${totalPayment.toLocaleString()}</span>
+              <span className="font-medium">K{totalPayment.toLocaleString()}</span>
             </div>
             
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Total Interest:</span>
               <span className="font-medium text-destructive">
-                ${totalInterest.toLocaleString()}
+                K{totalInterest.toLocaleString()}
               </span>
             </div>
             
             <div className="flex justify-between items-center pt-2 border-t">
               <span className="text-sm text-muted-foreground">Loan Amount:</span>
               <span className="font-medium">
-                ${(laptopPrice - downPayment).toLocaleString()}
+                K{(laptopPrice - downPayment).toLocaleString()}
               </span>
             </div>
           </div>

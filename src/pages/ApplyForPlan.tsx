@@ -128,11 +128,11 @@ const ApplyForPlan = () => {
               <div className="flex-1">
                 <h3 className="font-semibold">{laptop.brand} {laptop.name}</h3>
                 <p className="text-sm text-muted-foreground">
-                  ${weeklyPayment}/week • Down: ${downPayment} • {Math.round(Number(loanTerm) / 4.33)} months
+                  K{weeklyPayment}/week • Down: K{downPayment} • {Math.round(Number(loanTerm) / 4.33)} months
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold">${laptop.price.toLocaleString()}</p>
+                <p className="text-lg font-bold">K{laptop.price.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>

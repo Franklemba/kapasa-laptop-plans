@@ -126,22 +126,22 @@ const LaptopDetails = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl font-bold text-primary">
-                    ${laptop.price.toLocaleString()}
+                    K{laptop.price.toLocaleString()}
                   </span>
                   {laptop.originalPrice && (
                     <span className="text-lg text-muted-foreground line-through">
-                      ${laptop.originalPrice.toLocaleString()}
+                      K{laptop.originalPrice.toLocaleString()}
                     </span>
                   )}
                 </div>
                 {savings > 0 && (
                   <Badge variant="destructive">
-                    Save ${savings}
+                    Save K{savings}
                   </Badge>
                 )}
               </div>
               <div className="text-sm text-muted-foreground mb-3">
-                or ${laptop.weeklyPayment}/week with our payment plan
+                or K{laptop.weeklyPayment}/week with our payment plan
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Button 

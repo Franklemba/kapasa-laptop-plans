@@ -96,16 +96,16 @@ export const LaptopCard = ({ laptop }: LaptopCardProps) => {
         <div className="space-y-1">
           <div className="flex items-center space-x-2">
             <span className="text-lg font-bold text-primary">
-              ${laptop.price.toLocaleString()}
+              K{laptop.price.toLocaleString()}
             </span>
             {laptop.originalPrice && (
               <span className="text-sm text-muted-foreground line-through">
-                ${laptop.originalPrice.toLocaleString()}
+                K{laptop.originalPrice.toLocaleString()}
               </span>
             )}
           </div>
           <div className="text-xs text-muted-foreground">
-            or ${laptop.weeklyPayment}/week
+            or K{laptop.weeklyPayment}/week
           </div>
         </div>
 
