@@ -2,6 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Laptop, Users, DollarSign, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
+
+
 
 const AdminDashboard = () => {
   return (
@@ -133,9 +136,14 @@ const AdminDashboard = () => {
               <CardDescription>Add new laptops to your inventory</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">Add Laptop</Button>
+              {/* <Button className="w-full">Add Laptop</Button> */}
+              <Button className="w-full" asChild>
+              <Link to="/add-laptop">Add Laptop</Link>
+            </Button>
             </CardContent>
           </Card>
+          
+
         </div>
       </div>
     </div>

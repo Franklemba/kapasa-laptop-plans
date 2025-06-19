@@ -12,6 +12,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Catalog from "./pages/Catalog";
 import LaptopDetails from "./pages/LaptopDetails";
 import ApplyForPlan from "./pages/ApplyForPlan";
+import AddLaptop from "./pages/AddLaptop";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/add-laptop" element={<AddLaptop />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/catalog/:id" element={<LaptopDetails />} />
           <Route path="/catalog/:id/apply" element={<ApplyForPlan />} />
