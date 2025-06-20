@@ -13,6 +13,7 @@ import Catalog from "./pages/Catalog";
 import LaptopDetails from "./pages/LaptopDetails";
 import ApplyForPlan from "./pages/ApplyForPlan";
 import AddLaptop from "./pages/AddLaptop";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/catalog/:id" element={<LaptopDetails />} />
           <Route path="/catalog/:id/apply" element={<ApplyForPlan />} />
+          <Route path="/notifications" element={<Notifications />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
