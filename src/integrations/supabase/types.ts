@@ -9,13 +9,197 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      laptop_images: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          image_url: string
+          is_primary: boolean | null
+          laptop_id: string
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url: string
+          is_primary?: boolean | null
+          laptop_id: string
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          is_primary?: boolean | null
+          laptop_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "laptop_images_laptop_id_fkey"
+            columns: ["laptop_id"]
+            isOneToOne: false
+            referencedRelation: "laptops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      laptops: {
+        Row: {
+          brand: string
+          condition: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display: string
+          graphics: string | null
+          id: string
+          image_url: string | null
+          min_stock_level: number
+          model: string
+          name: string
+          original_price: number | null
+          price: number
+          processor: string
+          ram: string
+          rating: number | null
+          review_count: number | null
+          sku: string | null
+          specifications: Json | null
+          status: string
+          stock_quantity: number
+          storage: string
+          updated_at: string
+          updated_by: string | null
+          weekly_payment: number
+        }
+        Insert: {
+          brand: string
+          condition?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display: string
+          graphics?: string | null
+          id?: string
+          image_url?: string | null
+          min_stock_level?: number
+          model: string
+          name: string
+          original_price?: number | null
+          price: number
+          processor: string
+          ram: string
+          rating?: number | null
+          review_count?: number | null
+          sku?: string | null
+          specifications?: Json | null
+          status?: string
+          stock_quantity?: number
+          storage: string
+          updated_at?: string
+          updated_by?: string | null
+          weekly_payment: number
+        }
+        Update: {
+          brand?: string
+          condition?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display?: string
+          graphics?: string | null
+          id?: string
+          image_url?: string | null
+          min_stock_level?: number
+          model?: string
+          name?: string
+          original_price?: number | null
+          price?: number
+          processor?: string
+          ram?: string
+          rating?: number | null
+          review_count?: number | null
+          sku?: string | null
+          specifications?: Json | null
+          status?: string
+          stock_quantity?: number
+          storage?: string
+          updated_at?: string
+          updated_by?: string | null
+          weekly_payment?: number
+        }
+        Relationships: []
+      }
+      stock_movements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          laptop_id: string
+          movement_type: string
+          new_quantity: number
+          notes: string | null
+          previous_quantity: number
+          quantity: number
+          reason: string | null
+          reference_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          laptop_id: string
+          movement_type: string
+          new_quantity: number
+          notes?: string | null
+          previous_quantity: number
+          quantity: number
+          reason?: string | null
+          reference_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          laptop_id?: string
+          movement_type?: string
+          new_quantity?: number
+          notes?: string | null
+          previous_quantity?: number
+          quantity?: number
+          reason?: string | null
+          reference_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_laptop_id_fkey"
+            columns: ["laptop_id"]
+            isOneToOne: false
+            referencedRelation: "laptops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_laptop_stock: {
+        Args: {
+          p_laptop_id: string
+          p_movement_type: string
+          p_quantity: number
+          p_reason?: string
+          p_reference_number?: string
+          p_notes?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
