@@ -113,6 +113,18 @@ const AdminDashboard = () => {
 
           <Card className="cursor-pointer hover:shadow-md transition-shadow">
             <CardHeader>
+              <CardTitle>Stock Movements History</CardTitle>
+              <CardDescription>View detailed inventory transaction history</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" asChild>
+                <Link to="/stock-movements">View History</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardHeader>
               <CardTitle>Send Notifications</CardTitle>
               <CardDescription>Send reminders and custom messages</CardDescription>
             </CardHeader>
