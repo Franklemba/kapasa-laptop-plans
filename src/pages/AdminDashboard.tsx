@@ -4,8 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Laptop, Users, DollarSign, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
-
-
 const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -86,7 +84,9 @@ const AdminDashboard = () => {
               <CardDescription>View and manage all registered clients</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">View Clients</Button>
+              <Button className="w-full" asChild>
+                <Link to="/manage-clients">View Clients</Link>
+              </Button>
             </CardContent>
           </Card>
 
@@ -106,7 +106,21 @@ const AdminDashboard = () => {
               <CardDescription>Manage your laptop stock and availability</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">Manage Inventory</Button>
+              <Button className="w-full" asChild>
+                <Link to="/inventory">Manage Inventory</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle>Stock Movements History</CardTitle>
+              <CardDescription>View detailed inventory transaction history</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" asChild>
+                <Link to="/stock-movements">View History</Link>
+              </Button>
             </CardContent>
           </Card>
 
@@ -136,14 +150,11 @@ const AdminDashboard = () => {
               <CardDescription>Add new laptops to your inventory</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* <Button className="w-full">Add Laptop</Button> */}
               <Button className="w-full" asChild>
-              <Link to="/add-laptop">Add Laptop</Link>
-            </Button>
+                <Link to="/add-laptop">Add Laptop</Link>
+              </Button>
             </CardContent>
           </Card>
-          
-
         </div>
       </div>
     </div>

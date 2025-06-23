@@ -15,6 +15,9 @@ import ApplyForPlan from "./pages/ApplyForPlan";
 import AddLaptop from "./pages/AddLaptop";
 import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
+import InventoryManagement from "./pages/InventoryManagement";
+import StockMovementsHistory from "./pages/StockMovementsHistory";
+import ManageClients from "./pages/ManageClients";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +34,9 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/add-laptop" element={<AddLaptop />} />
+          <Route path="/inventory" element={<InventoryManagement />} />
+          <Route path="/stock-movements" element={<StockMovementsHistory />} />
+          <Route path="/manage-clients" element={<ManageClients />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/catalog/:id" element={<LaptopDetails />} />
           <Route path="/catalog/:id/apply" element={<ApplyForPlan />} />
