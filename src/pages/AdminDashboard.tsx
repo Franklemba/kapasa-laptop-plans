@@ -1,9 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Laptop, Users, DollarSign, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-
-
 
 const AdminDashboard = () => {
   return (
@@ -85,7 +84,9 @@ const AdminDashboard = () => {
               <CardDescription>View and manage all registered clients</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">View Clients</Button>
+              <Button className="w-full" asChild>
+                <Link to="/manage-clients">View Clients</Link>
+              </Button>
             </CardContent>
           </Card>
 
