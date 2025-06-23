@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Laptop, 
@@ -10,7 +9,8 @@ import {
   Bell,
   LogOut
 } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 import {
   Sidebar,
@@ -41,10 +41,17 @@ const accountItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
 
   const isActive = (path: string) => currentPath === path;
+
+  // Logout handler
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
 
   return (
     <Sidebar
@@ -107,7 +114,7 @@ export function AppSidebar() {
 
         {/* Logout */}
         <div className="mt-auto p-4 border-t">
-          <SidebarMenuButton className="w-full justify-start text-destructive hover:bg-destructive/10">
+          <SidebarMenuButton className="w-full justify-start text-destructive hover:bg-destructive/10" onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             {!isCollapsed && <span>Logout</span>}
           </SidebarMenuButton>

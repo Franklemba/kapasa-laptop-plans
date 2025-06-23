@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Laptop } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -19,32 +19,53 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login process
-    setTimeout(() => {
-      if (email && password) {
-        // Demo role-based redirect logic
-        if (email.includes("admin") || email === "uncle@kapasa.com") {
-          toast({
-            title: "Welcome back!",
-            description: "Redirecting to admin dashboard...",
-          });
-          navigate("/admin");
-        } else {
-          toast({
-            title: "Welcome back!",
-            description: "Redirecting to your dashboard...",
-          });
-          navigate("/dashboard");
-        }
-      } else {
-        toast({
-          title: "Error",
-          description: "Please fill in all fields.",
-          variant: "destructive",
-        });
-      }
+    if (!email || !password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields.",
+        variant: "destructive",
+      });
       setIsLoading(false);
-    }, 1000);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast({
+        title: "Login Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const user = data.user;
+    if (user) {
+      // Check if client exists
+      const { data: clientRows, error: clientError } = await supabase
+        .from("clients")
+        .select("id")
+        .eq("user_id", user.id);
+
+      if (!clientError && clientRows.length === 0) {
+        // Redirect to complete profile page
+        setIsLoading(false);
+        navigate("/complete-profile");
+        return;
+      }
+    }
+
+    toast({
+      title: "Welcome back!",
+      description: "Redirecting to your dashboard...",
+    });
+    setIsLoading(false);
+    navigate("/dashboard");
   };
 
   return (

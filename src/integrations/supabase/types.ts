@@ -9,6 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      clients: {
+        Row: {
+          address: string | null
+          created_at: string
+          credit_score: number | null
+          email: string
+          employment_status: string | null
+          first_name: string
+          id: string
+          last_name: string
+          monthly_income: number | null
+          national_id: string | null
+          notes: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          credit_score?: number | null
+          email: string
+          employment_status?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          monthly_income?: number | null
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          credit_score?: number | null
+          email?: string
+          employment_status?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          monthly_income?: number | null
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       laptop_images: {
         Row: {
           alt_text: string | null
@@ -133,6 +187,104 @@ export type Database = {
           weekly_payment?: number
         }
         Relationships: []
+      }
+      payment_plans: {
+        Row: {
+          amount_paid: number
+          client_id: string
+          created_at: string
+          id: string
+          laptop_id: string
+          plan_duration: number
+          start_date: string
+          status: string
+          total_amount: number
+          updated_at: string
+          weekly_payment: number
+        }
+        Insert: {
+          amount_paid?: number
+          client_id: string
+          created_at?: string
+          id?: string
+          laptop_id: string
+          plan_duration: number
+          start_date: string
+          status?: string
+          total_amount: number
+          updated_at?: string
+          weekly_payment: number
+        }
+        Update: {
+          amount_paid?: number
+          client_id?: string
+          created_at?: string
+          id?: string
+          laptop_id?: string
+          plan_duration?: number
+          start_date?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          weekly_payment?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_plans_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_plans_laptop_id_fkey"
+            columns: ["laptop_id"]
+            isOneToOne: false
+            referencedRelation: "laptops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string | null
+          payment_plan_id: string
+          reference_number: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          payment_plan_id: string
+          reference_number?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          payment_plan_id?: string
+          reference_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_payment_plan_id_fkey"
+            columns: ["payment_plan_id"]
+            isOneToOne: false
+            referencedRelation: "payment_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stock_movements: {
         Row: {

@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Laptop, Users, Search, Plus, Edit, Eye, Trash2, Phone, Mail, MapPin } from "lucide-react";
+import { Laptop, Users, Search, Plus, Edit, Eye, Trash2, Phone, Mail, ArrowLeft,MapPin } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "@/hooks/use-toast";
+
+
 
 const clientSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -28,16 +30,19 @@ const clientSchema = z.object({
   monthly_income: z.number().optional(),
   credit_score: z.number().min(300).max(850).optional(),
   status: z.enum(["active", "inactive", "suspended"]),
-  notes: z.string().optional(),
+  notes: z.string().optional()
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
+
+type Client = Omit<ClientFormData, "status"> & { id: string; created_at: string; status: string };
 
 const ManageClients = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<any>(null);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const navigate = useNavigate();
   
   const queryClient = useQueryClient();
 
@@ -98,17 +103,18 @@ const ManageClients = () => {
   // Create client mutation
   const createClientMutation = useMutation({
     mutationFn: async (data: ClientFormData) => {
-      const { error } = await supabase.from("clients").insert([data]);
+      const { error } = await supabase.from("clients").insert([data as Required<ClientFormData>]);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "clients" });
       setIsAddDialogOpen(false);
       form.reset();
       toast({
         title: "Success",
         description: "Client created successfully",
       });
+      console.log(clients)
     },
     onError: (error) => {
       toast({
@@ -130,7 +136,7 @@ const ManageClients = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "clients" });
       setEditingClient(null);
       form.reset();
       toast({
@@ -158,7 +164,7 @@ const ManageClients = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "clients" });
       toast({
         title: "Success",
         description: "Client deleted successfully",
@@ -182,7 +188,7 @@ const ManageClients = () => {
     }
   };
 
-  const handleEdit = (client: any) => {
+  const handleEdit = (client: Client) => {
     setEditingClient(client);
     form.reset({
       first_name: client.first_name,
@@ -194,7 +200,7 @@ const ManageClients = () => {
       employment_status: client.employment_status || "",
       monthly_income: client.monthly_income || undefined,
       credit_score: client.credit_score || undefined,
-      status: client.status,
+      status: (["active", "inactive", "suspended"].includes(client.status) ? client.status : "active") as "active" | "inactive" | "suspended",
       notes: client.notes || "",
     });
   };
@@ -221,7 +227,7 @@ const ManageClients = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card">
+      {/* <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Laptop className="h-8 w-8 text-primary" />
@@ -230,6 +236,19 @@ const ManageClients = () => {
           <Button variant="outline" size="sm">
             Back to Admin
           </Button>
+        </div>
+      </header> */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b mb-6">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center space-x-2">
+              <Laptop className="h-6 w-6 text-primary" />
+              <h1 className="text-lg font-semibold">Back to Admin</h1>
+            </div>
+          </div>
         </div>
       </header>
 

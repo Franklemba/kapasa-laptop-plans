@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,15 +7,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Laptop } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
     email: "",
-    phone: "",
     password: "",
-    confirmPassword: "",
-    address: "",
+    confirmPassword: ""
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,46 +22,43 @@ const Register = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Basic validation
     if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Passwords do not match.", variant: "destructive" });
       setIsLoading(false);
       return;
     }
 
     if (!agreeToTerms) {
-      toast({
-        title: "Error",
-        description: "Please agree to the terms and conditions.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Please agree to the terms and conditions.", variant: "destructive" });
       setIsLoading(false);
       return;
     }
 
-    // Simulate registration process
-    setTimeout(() => {
-      toast({
-        title: "Account created successfully!",
-        description: "Welcome to Uncle Kapasa's! Redirecting to your dashboard...",
-      });
-      navigate("/dashboard");
+    // Create user with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password
+    });
+
+    if (authError) {
+      toast({ title: "Signup Error", description: authError.message, variant: "destructive" });
       setIsLoading(false);
-    }, 1500);
+      return;
+    }
+
+    toast({
+      title: "Check your email",
+      description: "A confirmation link has been sent to your email. Please verify your account before logging in."
+    });
+    setIsLoading(false);
+    navigate("/login");
   };
 
   return (
@@ -83,82 +77,19 @@ const Register = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                name="fullName"
-                type="text"
-                placeholder="Enter your full name"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="Enter your phone number"
-                value={formData.phone}
-                onChange={handleInputChange}
-                required
-              />
+              <Input name="email" type="email" value={formData.email} onChange={handleInputChange} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-              />
+              <Input name="password" type="password" value={formData.password} onChange={handleInputChange} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="address">Address (Optional)</Label>
-              <Input
-                id="address"
-                name="address"
-                type="text"
-                placeholder="Enter your address"
-                value={formData.address}
-                onChange={handleInputChange}
-              />
+              <Input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleInputChange} required />
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox
-                id="terms"
-                checked={agreeToTerms}
-                onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
-              />
+              <Checkbox id="terms" checked={agreeToTerms} onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)} />
               <Label htmlFor="terms" className="text-sm">
                 I agree to the{" "}
                 <Link to="/terms" className="text-primary hover:underline">
