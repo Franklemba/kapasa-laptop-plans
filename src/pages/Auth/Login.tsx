@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,53 +20,68 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast({
-        title: "Login Error",
-        description: error.message,
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    const user = data.user;
-    if (user) {
-      // Check if client exists
-      const { data: clientRows, error: clientError } = await supabase
-        .from("clients")
-        .select("id")
-        .eq("user_id", user.id);
-
-      if (!clientError && clientRows.length === 0) {
-        // Redirect to complete profile page
-        setIsLoading(false);
-        navigate("/complete-profile");
+    try {
+      if (!email || !password) {
+        toast({
+          title: "Error",
+          description: "Please fill in all fields.",
+          variant: "destructive",
+        });
         return;
       }
-    }
 
-    toast({
-      title: "Welcome back!",
-      description: "Redirecting to your dashboard...",
-    });
-    setIsLoading(false);
-    navigate("/dashboard");
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast({
+          title: "Login Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const user = data.user;
+      if (user) {
+        // Check if client profile exists
+        const { data: clientData, error: clientError } = await supabase
+          .from("clients")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (clientError) {
+          console.error("Error checking client profile:", clientError);
+        }
+
+        if (!clientData) {
+          // No client profile found, redirect to complete profile
+          toast({
+            title: "Welcome!",
+            description: "Please complete your profile to get started.",
+          });
+          navigate("/complete-profile");
+          return;
+        }
+      }
+
+      toast({
+        title: "Welcome back!",
+        description: "Redirecting to your dashboard...",
+      });
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Login Error",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
