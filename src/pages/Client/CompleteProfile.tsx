@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,28 +23,50 @@ const CompleteProfile = () => {
     notes: ""
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is authenticated
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error) {
+          console.error('Auth error:', error);
+          navigate("/login");
+          return;
+        }
+
+        if (!user) {
+          console.log('No user found, redirecting to login');
+          navigate("/login");
+          return;
+        }
+
+        console.log('Current user:', user);
+        setUser(user);
+
+        // Check if profile already exists
+        const { data: clientData, error: clientError } = await supabase
+          .from("clients")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+
+        if (clientError && clientError.code !== 'PGRST116') {
+          console.error('Error checking client profile:', clientError);
+        }
+
+        if (clientData) {
+          // Profile already exists, redirect to dashboard
+          console.log('Profile exists, redirecting to dashboard');
+          navigate("/dashboard");
+        }
+      } catch (error) {
+        console.error('Error in checkAuth:', error);
         navigate("/login");
-        return;
-      }
-
-      // Check if profile already exists
-      const { data: clientData } = await supabase
-        .from("clients")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (clientData) {
-        // Profile already exists, redirect to dashboard
-        navigate("/dashboard");
       }
     };
 
@@ -61,19 +82,21 @@ const CompleteProfile = () => {
     setIsLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({ 
           title: "Error", 
-          description: "Not authenticated.", 
+          description: "User not authenticated.", 
           variant: "destructive" 
         });
         navigate("/login");
         return;
       }
 
-      // Insert client profile
-      const { error } = await supabase.from("clients").insert({
+      console.log('Attempting to create client profile for user:', user.id);
+      console.log('User email:', user.email);
+
+      // Insert client profile with the authenticated user's ID
+      const { data, error } = await supabase.from("clients").insert({
         user_id: user.id,
         email: user.email || "",
         first_name: formData.firstName,
@@ -86,11 +109,14 @@ const CompleteProfile = () => {
         credit_score: formData.creditScore ? Number(formData.creditScore) : null,
         status: "active",
         notes: formData.notes || null,
-      });
+      }).select();
 
       if (error) {
+        console.error('Insert error:', error);
         throw error;
       }
+
+      console.log('Client profile created successfully:', data);
 
       toast({ 
         title: "Profile completed!", 
@@ -99,6 +125,7 @@ const CompleteProfile = () => {
       
       navigate("/dashboard");
     } catch (error: any) {
+      console.error('Complete profile error:', error);
       toast({ 
         title: "Error", 
         description: error.message || "Failed to save profile", 
@@ -108,6 +135,22 @@ const CompleteProfile = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking authentication
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/10 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/10 flex items-center justify-center p-4">
