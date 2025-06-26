@@ -17,6 +17,10 @@ export interface PaymentPlanApplicationData {
   reasonForPurchase: string;
   hasAppliedBefore: boolean;
   
+  // Agreement checkboxes
+  agreeToTerms: boolean;
+  agreeToCredit: boolean;
+  
   // User can edit their basic info if needed
   firstName: string;
   lastName: string;
