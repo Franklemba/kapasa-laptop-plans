@@ -1,17 +1,22 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, User, CreditCard, Home, FileText, Shield } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 import { laptopData } from "@/data/laptops";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { LoadingScreen } from "@/components/client/LoadingScreen";
+import { LaptopSummaryCard } from "@/components/client/LaptopSummaryCard";
+import { ProfileNotice } from "@/components/client/ProfileNotice";
+import { PersonalInfoSection } from "@/components/client/PersonalInfoSection";
+import { AddressInfoSection } from "@/components/client/AddressInfoSection";
+import { EmploymentDetailsSection } from "@/components/client/EmploymentDetailsSection";
+import { FinancialInfoSection } from "@/components/client/FinancialInfoSection";
+import { AdditionalInfoSection } from "@/components/client/AdditionalInfoSection";
+import { TermsAgreementSection } from "@/components/client/TermsAgreementSection";
 import { submitPaymentPlanApplication, PaymentPlanApplicationData } from "@/services/paymentPlanService";
 
 const ApplyForPlan = () => {
@@ -178,314 +183,46 @@ const ApplyForPlan = () => {
       </header>
 
       <div className="p-4 pb-24 max-w-2xl mx-auto">
-        {/* Laptop Summary */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-4">
-              <img
-                src={`https://images.unsplash.com/${laptop.image}?w=80&h=60&fit=crop`}
-                alt={laptop.name}
-                className="w-16 h-12 object-cover rounded"
-              />
-              <div className="flex-1">
-                <h3 className="font-semibold">{laptop.brand} {laptop.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  K{weeklyPayment}/week • Down: K{downPayment} • {Math.round(Number(loanTerm) / 4.33)} months
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-lg font-bold">K{laptop.price.toLocaleString()}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <LaptopSummaryCard 
+          laptop={laptop}
+          weeklyPayment={weeklyPayment.toString()}
+          downPayment={downPayment}
+          loanTerm={loanTerm}
+        />
 
-        {/* Profile Data Notice */}
-        <Card className="mb-6 bg-blue-50 border-blue-200">
-          <CardContent className="p-4">
-            <div className="flex items-start space-x-2">
-              <User className="h-5 w-5 text-blue-600 mt-0.5" />
-              <div>
-                <h3 className="font-medium text-blue-900">Your Information</h3>
-                <p className="text-sm text-blue-700">
-                  We've pre-filled your basic information from your profile. You can review and edit any details below if needed.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ProfileNotice />
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Personal Information - Pre-populated but editable */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <User className="h-5 w-5" />
-                <span>Personal Information</span>
-                <span className="text-sm text-muted-foreground font-normal">(Review & Edit)</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                  <Input
-                    id="dateOfBirth"
-                    type="date"
-                    value={formData.dateOfBirth}
-                    onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <PersonalInfoSection 
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
-          {/* Address Information - Pre-populated but editable */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Home className="h-5 w-5" />
-                <span>Address Information</span>
-                <span className="text-sm text-muted-foreground font-normal">(Review & Edit)</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="street">Street Address</Label>
-                <Input
-                  id="street"
-                  value={formData.street}
-                  onChange={(e) => handleInputChange('street', e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="city">City</Label>
-                  <Input
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="state">State</Label>
-                  <Input
-                    id="state"
-                    value={formData.state}
-                    onChange={(e) => handleInputChange('state', e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="zipCode">ZIP Code</Label>
-                <Input
-                  id="zipCode"
-                  value={formData.zipCode}
-                  onChange={(e) => handleInputChange('zipCode', e.target.value)}
-                  required
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <AddressInfoSection 
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
-          {/* Employment Information - Additional details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <CreditCard className="h-5 w-5" />
-                <span>Employment Details</span>
-                <span className="text-sm text-muted-foreground font-normal">(Additional Information)</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="employer">Employer</Label>
-                  <Input
-                    id="employer"
-                    value={formData.employer}
-                    onChange={(e) => handleInputChange('employer', e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="jobTitle">Job Title</Label>
-                  <Input
-                    id="jobTitle"
-                    value={formData.jobTitle}
-                    onChange={(e) => handleInputChange('jobTitle', e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="employmentLength">Years at Current Job</Label>
-                <Input
-                  id="employmentLength"
-                  type="number"
-                  placeholder="0"
-                  value={formData.employmentLength}
-                  onChange={(e) => handleInputChange('employmentLength', e.target.value)}
-                  required
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <EmploymentDetailsSection 
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
-          {/* Financial Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <CreditCard className="h-5 w-5" />
-                <span>Financial Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="bankName">Bank Name</Label>
-                  <Input
-                    id="bankName"
-                    value={formData.bankName}
-                    onChange={(e) => handleInputChange('bankName', e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="accountType">Account Type</Label>
-                  <Input
-                    id="accountType"
-                    placeholder="e.g., Checking, Savings"
-                    value={formData.accountType}
-                    onChange={(e) => handleInputChange('accountType', e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="monthlyExpenses">Monthly Expenses</Label>
-                <Input
-                  id="monthlyExpenses"
-                  type="number"
-                  placeholder="0"
-                  value={formData.monthlyExpenses}
-                  onChange={(e) => handleInputChange('monthlyExpenses', e.target.value)}
-                  required
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <FinancialInfoSection 
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
-          {/* Additional Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <FileText className="h-5 w-5" />
-                <span>Additional Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="reasonForPurchase">Reason for Purchase</Label>
-                <Textarea
-                  id="reasonForPurchase"
-                  placeholder="Tell us why you need this laptop..."
-                  value={formData.reasonForPurchase}
-                  onChange={(e) => handleInputChange('reasonForPurchase', e.target.value)}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="hasAppliedBefore"
-                  checked={formData.hasAppliedBefore}
-                  onCheckedChange={(checked) => handleCheckboxChange('hasAppliedBefore', checked as boolean)}
-                />
-                <Label htmlFor="hasAppliedBefore" className="text-sm">
-                  I have applied for financing with this company before
-                </Label>
-              </div>
-            </CardContent>
-          </Card>
+          <AdditionalInfoSection 
+            formData={formData}
+            onInputChange={handleInputChange}
+            onCheckboxChange={handleCheckboxChange}
+          />
 
-          {/* Terms and Agreements */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Shield className="h-5 w-5" />
-                <span>Terms & Agreements</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start space-x-2">
-                <Checkbox
-                  id="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onCheckedChange={(checked) => handleCheckboxChange('agreeToTerms', checked as boolean)}
-                  required
-                />
-                <Label htmlFor="agreeToTerms" className="text-sm leading-relaxed">
-                  I agree to the terms and conditions, privacy policy, and understand that this application 
-                  does not guarantee approval. Final terms may vary based on credit approval.
-                </Label>
-              </div>
-              <div className="flex items-start space-x-2">
-                <Checkbox
-                  id="agreeToCredit"
-                  checked={formData.agreeToCredit}
-                  onCheckedChange={(checked) => handleCheckboxChange('agreeToCredit', checked as boolean)}
-                  required
-                />
-                <Label htmlFor="agreeToCredit" className="text-sm leading-relaxed">
-                  I authorize the company to perform a credit check and verify the information provided 
-                  in this application.
-                </Label>
-              </div>
-            </CardContent>
-          </Card>
+          <TermsAgreementSection 
+            formData={formData}
+            onCheckboxChange={handleCheckboxChange}
+          />
 
           {/* Submit Button */}
           <div className="pt-4">
