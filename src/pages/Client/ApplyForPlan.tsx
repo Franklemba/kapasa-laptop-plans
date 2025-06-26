@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, User, CreditCard, Home, FileText, Shield } from "lucide-react";
 import { laptopData } from "@/data/laptops";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { useClientProfile } from "@/hooks/useClientProfile";
+import { LoadingScreen } from "@/components/client/LoadingScreen";
+import { submitPaymentPlanApplication, PaymentPlanApplicationData } from "@/services/paymentPlanService";
 
 const ApplyForPlan = () => {
   const { id } = useParams();
@@ -17,31 +20,35 @@ const ApplyForPlan = () => {
   const location = useLocation();
   const { toast } = useToast();
   
+  // Authentication and profile loading
+  const { user, isLoading: authLoading } = useAuthCheck();
+  const { profile, isLoading: profileLoading, error: profileError } = useClientProfile(user?.id || null);
+  
   const laptop = laptopData.find(l => l.id === id);
   const queryParams = new URLSearchParams(location.search);
   const weeklyPayment = queryParams.get('weeklyPayment') || laptop?.weeklyPayment || 0;
   const downPayment = queryParams.get('downPayment') || '0';
   const loanTerm = queryParams.get('loanTerm') || '52';
 
-  const [formData, setFormData] = useState({
-    // Personal Information
+  const [formData, setFormData] = useState<PaymentPlanApplicationData>({
+    // Pre-populated from profile (will be set when profile loads)
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
-    dateOfBirth: '',
     
-    // Address Information
+    // Address Information (constructed from profile address)
     street: '',
     city: '',
     state: '',
     zipCode: '',
     
-    // Employment Information
-    employmentStatus: '',
+    // New fields not in basic profile
+    dateOfBirth: '',
+    
+    // Employment Information (additional details)
     employer: '',
     jobTitle: '',
-    monthlyIncome: '',
     employmentLength: '',
     
     // Financial Information
@@ -58,6 +65,39 @@ const ApplyForPlan = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Update form data when profile loads
+  useEffect(() => {
+    if (profile) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: profile.first_name || '',
+        lastName: profile.last_name || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        // Parse address if it exists (assuming it's stored as a single string)
+        street: profile.address || '',
+      }));
+    }
+  }, [profile]);
+
+  if (authLoading || profileLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (profileError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6 text-center">
+            <h2 className="text-xl font-semibold mb-2">Profile Error</h2>
+            <p className="text-muted-foreground mb-4">{profileError}</p>
+            <Button onClick={() => navigate("/dashboard")}>Back to Dashboard</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!laptop) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -69,11 +109,11 @@ const ApplyForPlan = () => {
     );
   }
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof PaymentPlanApplicationData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCheckboxChange = (field: string, checked: boolean) => {
+  const handleCheckboxChange = (field: keyof PaymentPlanApplicationData, checked: boolean) => {
     setFormData(prev => ({ ...prev, [field]: checked }));
   };
 
@@ -89,17 +129,39 @@ const ApplyForPlan = () => {
       return;
     }
 
+    if (!profile?.id) {
+      toast({
+        title: "Profile Error",
+        description: "Unable to find your profile. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await submitPaymentPlanApplication(
+        profile.id,
+        id!,
+        formData,
+        { weeklyPayment: weeklyPayment.toString(), downPayment, loanTerm }
+      );
+
       toast({
         title: "Application Submitted!",
         description: "We'll review your application and get back to you within 24 hours.",
       });
       navigate(`/catalog/${id}`);
-    }, 2000);
+    } catch (error) {
+      toast({
+        title: "Submission Error",
+        description: "Failed to submit application. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -138,13 +200,29 @@ const ApplyForPlan = () => {
           </CardContent>
         </Card>
 
+        {/* Profile Data Notice */}
+        <Card className="mb-6 bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-start space-x-2">
+              <User className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div>
+                <h3 className="font-medium text-blue-900">Your Information</h3>
+                <p className="text-sm text-blue-700">
+                  We've pre-filled your basic information from your profile. You can review and edit any details below if needed.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Personal Information */}
+          {/* Personal Information - Pre-populated but editable */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
                 <span>Personal Information</span>
+                <span className="text-sm text-muted-foreground font-normal">(Review & Edit)</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -203,12 +281,13 @@ const ApplyForPlan = () => {
             </CardContent>
           </Card>
 
-          {/* Address Information */}
+          {/* Address Information - Pre-populated but editable */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Home className="h-5 w-5" />
                 <span>Address Information</span>
+                <span className="text-sm text-muted-foreground font-normal">(Review & Edit)</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -253,25 +332,16 @@ const ApplyForPlan = () => {
             </CardContent>
           </Card>
 
-          {/* Employment Information */}
+          {/* Employment Information - Additional details */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <CreditCard className="h-5 w-5" />
-                <span>Employment Information</span>
+                <span>Employment Details</span>
+                <span className="text-sm text-muted-foreground font-normal">(Additional Information)</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="employmentStatus">Employment Status</Label>
-                <Input
-                  id="employmentStatus"
-                  placeholder="e.g., Full-time, Part-time, Self-employed"
-                  value={formData.employmentStatus}
-                  onChange={(e) => handleInputChange('employmentStatus', e.target.value)}
-                  required
-                />
-              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="employer">Employer</Label>
@@ -292,29 +362,60 @@ const ApplyForPlan = () => {
                   />
                 </div>
               </div>
+              <div>
+                <Label htmlFor="employmentLength">Years at Current Job</Label>
+                <Input
+                  id="employmentLength"
+                  type="number"
+                  placeholder="0"
+                  value={formData.employmentLength}
+                  onChange={(e) => handleInputChange('employmentLength', e.target.value)}
+                  required
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Financial Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <CreditCard className="h-5 w-5" />
+                <span>Financial Information</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="monthlyIncome">Monthly Income</Label>
+                  <Label htmlFor="bankName">Bank Name</Label>
                   <Input
-                    id="monthlyIncome"
-                    type="number"
-                    placeholder="0"
-                    value={formData.monthlyIncome}
-                    onChange={(e) => handleInputChange('monthlyIncome', e.target.value)}
+                    id="bankName"
+                    value={formData.bankName}
+                    onChange={(e) => handleInputChange('bankName', e.target.value)}
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="employmentLength">Years at Current Job</Label>
+                  <Label htmlFor="accountType">Account Type</Label>
                   <Input
-                    id="employmentLength"
-                    type="number"
-                    placeholder="0"
-                    value={formData.employmentLength}
-                    onChange={(e) => handleInputChange('employmentLength', e.target.value)}
+                    id="accountType"
+                    placeholder="e.g., Checking, Savings"
+                    value={formData.accountType}
+                    onChange={(e) => handleInputChange('accountType', e.target.value)}
                     required
                   />
                 </div>
+              </div>
+              <div>
+                <Label htmlFor="monthlyExpenses">Monthly Expenses</Label>
+                <Input
+                  id="monthlyExpenses"
+                  type="number"
+                  placeholder="0"
+                  value={formData.monthlyExpenses}
+                  onChange={(e) => handleInputChange('monthlyExpenses', e.target.value)}
+                  required
+                />
               </div>
             </CardContent>
           </Card>
