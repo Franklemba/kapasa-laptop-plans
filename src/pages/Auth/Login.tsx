@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,19 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkExistingAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        console.log('User already authenticated, redirecting to dashboard');
+        navigate("/dashboard");
+      }
+    };
+
+    checkExistingAuth();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +59,8 @@ const Login = () => {
 
       const user = data.user;
       if (user) {
+        console.log('User authenticated successfully:', user.id);
+        
         // Check if client profile exists
         const { data: clientData, error: clientError } = await supabase
           .from("clients")
@@ -66,14 +81,15 @@ const Login = () => {
           navigate("/complete-profile");
           return;
         }
-      }
 
-      toast({
-        title: "Welcome back!",
-        description: "Redirecting to your dashboard...",
-      });
-      navigate("/dashboard");
+        toast({
+          title: "Welcome back!",
+          description: "Redirecting to your dashboard...",
+        });
+        navigate("/dashboard");
+      }
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: "Login Error",
         description: error.message || "An unexpected error occurred",
