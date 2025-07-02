@@ -4,36 +4,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Star, Cpu, HardDrive, Monitor } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Laptop } from "@/services/laptopService";
 
 interface LaptopCardProps {
-  laptop: {
-    id: string;
-    name: string;
-    brand: string;
-    price: number;
-    originalPrice?: number;
-    image: string;
-    rating: number;
-    reviewCount: number;
-    processor: string;
-    ram: string;
-    storage: string;
-    display: string;
-    condition: "new" | "refurbished" | "used";
-    weeklyPayment: number;
-  };
+  laptop: Laptop;
 }
 
 export const LaptopCard = ({ laptop }: LaptopCardProps) => {
-  const savings = laptop.originalPrice ? laptop.originalPrice - laptop.price : 0;
-  const savingsPercentage = laptop.originalPrice ? Math.round((savings / laptop.originalPrice) * 100) : 0;
+  const savings = laptop.original_price ? laptop.original_price - laptop.price : 0;
+  const savingsPercentage = laptop.original_price ? Math.round((savings / laptop.original_price) * 100) : 0;
 
   return (
     <Card className="h-full hover:shadow-lg transition-all duration-200 active:scale-[0.98]">
       <div className="relative">
         <div className="aspect-[4/3] bg-muted rounded-t-lg overflow-hidden">
           <img
-            src={`https://images.unsplash.com/${laptop.image}?w=400&h=300&fit=crop`}
+            src={laptop.image_url || `https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop`}
             alt={laptop.name}
             className="w-full h-full object-cover"
           />
@@ -64,7 +50,7 @@ export const LaptopCard = ({ laptop }: LaptopCardProps) => {
             <div className="flex items-center space-x-1 mt-1">
               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
               <span className="text-xs text-muted-foreground">
-                {laptop.rating} ({laptop.reviewCount})
+                {laptop.rating || 4.5} ({laptop.review_count || 0})
               </span>
             </div>
           </div>
@@ -98,14 +84,14 @@ export const LaptopCard = ({ laptop }: LaptopCardProps) => {
             <span className="text-lg font-bold text-primary">
               K{laptop.price.toLocaleString()}
             </span>
-            {laptop.originalPrice && (
+            {laptop.original_price && (
               <span className="text-sm text-muted-foreground line-through">
-                K{laptop.originalPrice.toLocaleString()}
+                K{laptop.original_price.toLocaleString()}
               </span>
             )}
           </div>
           <div className="text-xs text-muted-foreground">
-            or K{laptop.weeklyPayment}/week
+            or K{laptop.weekly_payment}/week
           </div>
         </div>
 
@@ -117,7 +103,7 @@ export const LaptopCard = ({ laptop }: LaptopCardProps) => {
             </Link>
           </Button>
           <Button size="sm" className="flex-1" asChild>
-            <Link to={`/apply/${laptop.id}`}>
+            <Link to={`/catalog/${laptop.id}/apply`}>
               Start Plan
             </Link>
           </Button>

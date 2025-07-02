@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,24 +7,62 @@ import { Badge } from "@/components/ui/badge";
 import { Laptop, Search, Filter, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { LaptopCard } from "@/components/LaptopCard";
-import { laptopData } from "@/data/laptops";
+import { fetchLaptops, searchLaptops, Laptop as LaptopType } from "@/services/laptopService";
+import { useToast } from "@/hooks/use-toast";
 
 const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceFilter, setPriceFilter] = useState("all");
+  const [laptops, setLaptops] = useState<LaptopType[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const filteredLaptops = laptopData.filter(laptop => {
-    const matchesSearch = laptop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         laptop.brand.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesPrice = priceFilter === "all" || 
-                        (priceFilter === "budget" && laptop.price <= 4000) ||
-                        (priceFilter === "mid" && laptop.price > 4000 && laptop.price <= 6500) ||
-                        (priceFilter === "premium" && laptop.price > 6500);
-                        
-    return matchesSearch && matchesPrice;
-  });
+  useEffect(() => {
+    loadLaptops();
+  }, []);
+
+  const loadLaptops = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchLaptops();
+      setLaptops(data);
+    } catch (error) {
+      console.error('Error loading laptops:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load laptops. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    try {
+      setLoading(true);
+      const data = await searchLaptops(searchTerm, priceFilter);
+      setLaptops(data);
+    } catch (error) {
+      console.error('Error searching laptops:', error);
+      toast({
+        title: "Error",
+        description: "Failed to search laptops. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      handleSearch();
+    }, 300);
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchTerm, priceFilter]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,7 +78,7 @@ const Catalog = () => {
               <h1 className="text-lg font-semibold">Laptop Catalog</h1>
             </div>
           </div>
-          <Badge variant="secondary">{filteredLaptops.length} laptops</Badge>
+          <Badge variant="secondary">{laptops.length} laptops</Badge>
         </div>
       </header>
 
@@ -95,9 +133,15 @@ const Catalog = () => {
 
       {/* Laptop Grid */}
       <div className="px-4 pb-20">
-        {filteredLaptops.length > 0 ? (
+        {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {filteredLaptops.map((laptop) => (
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-muted animate-pulse rounded-lg h-48"></div>
+            ))}
+          </div>
+        ) : laptops.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {laptops.map((laptop) => (
               <LaptopCard key={laptop.id} laptop={laptop} />
             ))}
           </div>
@@ -111,6 +155,7 @@ const Catalog = () => {
             <Button variant="outline" onClick={() => {
               setSearchTerm("");
               setPriceFilter("all");
+              loadLaptops();
             }}>
               Clear Filters
             </Button>

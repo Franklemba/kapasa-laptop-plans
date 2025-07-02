@@ -4,7 +4,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
-import { laptopData } from "@/data/laptops";
+import { fetchLaptopById, Laptop } from "@/services/laptopService";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { useClientProfile } from "@/hooks/useClientProfile";
@@ -29,11 +29,37 @@ const ApplyForPlan = () => {
   const { user, isLoading: authLoading } = useAuthCheck();
   const { profile, isLoading: profileLoading, error: profileError } = useClientProfile(user?.id || null);
   
-  const laptop = laptopData.find(l => l.id === id);
+  const [laptop, setLaptop] = useState<Laptop | null>(null);
+  const [laptopLoading, setLaptopLoading] = useState(true);
+  
   const queryParams = new URLSearchParams(location.search);
-  const weeklyPayment = queryParams.get('weeklyPayment') || laptop?.weeklyPayment || 0;
+  const weeklyPayment = queryParams.get('weeklyPayment') || laptop?.weekly_payment || 0;
   const downPayment = queryParams.get('downPayment') || '0';
   const loanTerm = queryParams.get('loanTerm') || '52';
+
+  // Load laptop data
+  useEffect(() => {
+    if (id) {
+      loadLaptop(id);
+    }
+  }, [id]);
+
+  const loadLaptop = async (laptopId: string) => {
+    try {
+      setLaptopLoading(true);
+      const data = await fetchLaptopById(laptopId);
+      setLaptop(data);
+    } catch (error) {
+      console.error('Error loading laptop:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load laptop details.",
+        variant: "destructive"
+      });
+    } finally {
+      setLaptopLoading(false);
+    }
+  };
 
   const [formData, setFormData] = useState<PaymentPlanApplicationData>({
     // Pre-populated from profile (will be set when profile loads)
@@ -85,7 +111,7 @@ const ApplyForPlan = () => {
     }
   }, [profile]);
 
-  if (authLoading || profileLoading) {
+  if (authLoading || profileLoading || laptopLoading) {
     return <LoadingScreen />;
   }
 

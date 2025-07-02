@@ -1,21 +1,85 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Star, Cpu, HardDrive, Monitor, MemoryStick, Wifi, Battery, Camera, Volume2, Share, Heart } from "lucide-react";
-import { laptopData } from "@/data/laptops";
+import { Star, ArrowLeft, Cpu, HardDrive, Monitor, Zap } from "lucide-react";
 import PaymentPlanCalculator from "@/components/PaymentPlanCalculator";
+import { fetchLaptopById, Laptop } from "@/services/laptopService";
+import { useToast } from "@/hooks/use-toast";
 
 const LaptopDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [showCalculator, setShowCalculator] = useState(false);
-  
-  const laptop = laptopData.find(l => l.id === id);
-  
+  const { toast } = useToast();
+  const [laptop, setLaptop] = useState<Laptop | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState({
+    weeklyPayment: "0",
+    downPayment: "0",
+    loanTerm: "52"
+  });
+
+  useEffect(() => {
+    if (id) {
+      loadLaptop(id);
+    }
+  }, [id]);
+
+  const loadLaptop = async (laptopId: string) => {
+    try {
+      setLoading(true);
+      const data = await fetchLaptopById(laptopId);
+      if (data) {
+        setLaptop(data);
+        setSelectedPlan(prev => ({
+          ...prev,
+          weeklyPayment: data.weekly_payment.toString()
+        }));
+      } else {
+        toast({
+          title: "Laptop not found",
+          description: "The requested laptop could not be found.",
+          variant: "destructive"
+        });
+        navigate("/catalog");
+      }
+    } catch (error) {
+      console.error('Error loading laptop:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load laptop details.",
+        variant: "destructive"
+      });
+      navigate("/catalog");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="flex items-center justify-between p-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg font-semibold">Loading...</h1>
+            <div></div>
+          </div>
+        </header>
+        <div className="p-4">
+          <div className="animate-pulse">
+            <div className="bg-muted rounded-lg h-64 mb-4"></div>
+            <div className="bg-muted rounded h-6 w-3/4 mb-2"></div>
+            <div className="bg-muted rounded h-4 w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!laptop) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -27,20 +91,11 @@ const LaptopDetails = () => {
     );
   }
 
-  const savings = laptop.originalPrice ? laptop.originalPrice - laptop.price : 0;
-  const savingsPercentage = laptop.originalPrice ? Math.round((savings / laptop.originalPrice) * 100) : 0;
-
-  const images = [
-    `https://images.unsplash.com/${laptop.image}?w=600&h=400&fit=crop`,
-    `https://images.unsplash.com/${laptop.image}?w=600&h=400&fit=crop&sat=2`,
-    `https://images.unsplash.com/${laptop.image}?w=600&h=400&fit=crop&brightness=1.1`,
-  ];
-
-  const handleApplyForPlan = (weeklyPayment?: number, downPayment?: number, loanTerm?: number) => {
+  const handleApplyForPlan = () => {
     const params = new URLSearchParams();
-    if (weeklyPayment) params.set('weeklyPayment', weeklyPayment.toString());
-    if (downPayment) params.set('downPayment', downPayment.toString());
-    if (loanTerm) params.set('loanTerm', loanTerm.toString());
+    params.set('weeklyPayment', selectedPlan.weeklyPayment);
+    params.set('downPayment', selectedPlan.downPayment);
+    params.set('loanTerm', selectedPlan.loanTerm);
     
     navigate(`/catalog/${id}/apply?${params.toString()}`);
   };
@@ -53,212 +108,123 @@ const LaptopDetails = () => {
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon">
-              <Share className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Heart className="h-5 w-5" />
-            </Button>
-          </div>
+          <h1 className="text-lg font-semibold">Laptop Details</h1>
+          <div></div>
         </div>
       </header>
 
-      <div className="pb-24">
-        {/* Image Gallery */}
-        <div className="relative">
-          <div className="aspect-[4/3] bg-muted overflow-hidden">
-            <img
-              src={images[selectedImage]}
-              alt={laptop.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          {/* Image Indicators */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  selectedImage === index ? 'bg-white' : 'bg-white/50'
-                }`}
-              />
-            ))}
-          </div>
-
-          {/* Badges */}
-          <div className="absolute top-4 left-4 flex flex-col space-y-2">
+      <div className="p-4 pb-24 max-w-2xl mx-auto">
+        {/* Hero Image */}
+        <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-100 mb-6">
+          <img
+            src={laptop.image_url || `https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=450&fit=crop`}
+            alt={laptop.name}
+            className="w-full h-full object-cover"
+          />
+          {laptop.condition === "refurbished" && (
             <Badge 
-              variant={laptop.condition === "new" ? "default" : "secondary"}
-              className="text-xs"
+              variant="secondary" 
+              className="absolute top-4 left-4 bg-blue-100 text-blue-800"
             >
-              {laptop.condition === "new" ? "New" : laptop.condition === "refurbished" ? "Refurbished" : "Used"}
+              Refurbished
             </Badge>
-            {savings > 0 && (
-              <Badge variant="destructive" className="text-xs">
-                Save {savingsPercentage}%
-              </Badge>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Product Info */}
-        <div className="p-4 space-y-6">
-          {/* Title and Rating */}
-          <div>
-            <h1 className="text-2xl font-bold mb-2">
-              {laptop.brand} {laptop.name}
-            </h1>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">{laptop.rating}</span>
-                <span className="text-muted-foreground">({laptop.reviewCount} reviews)</span>
-              </div>
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-1 mb-1">
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="font-medium">{laptop.rating || 4.5}</span>
+              <span className="text-muted-foreground">({laptop.review_count || 0} reviews)</span>
             </div>
-          </div>
+            
+            <div className="flex items-baseline space-x-2 mb-2">
+              <span className="text-2xl font-bold">K{laptop.price.toLocaleString()}</span>
+              {laptop.original_price && (
+                <span className="text-lg text-muted-foreground line-through">
+                  K{laptop.original_price.toLocaleString()}
+                </span>
+              )}
+            </div>
 
-          {/* Pricing */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
+            <p className="text-primary font-medium">
+              From K{laptop.weekly_payment}/week
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Specifications */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Specifications</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex items-center space-x-3">
+                <Cpu className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">Processor</p>
+                  <p className="text-sm text-muted-foreground">{laptop.processor}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <HardDrive className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">Storage</p>
+                  <p className="text-sm text-muted-foreground">{laptop.storage}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Zap className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">RAM</p>
+                  <p className="text-sm text-muted-foreground">{laptop.ram}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Monitor className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">Display</p>
+                  <p className="text-sm text-muted-foreground">{laptop.display}</p>
+                </div>
+              </div>
+              {laptop.graphics && (
                 <div className="flex items-center space-x-3">
-                  <span className="text-2xl font-bold text-primary">
-                    K{laptop.price.toLocaleString()}
-                  </span>
-                  {laptop.originalPrice && (
-                    <span className="text-lg text-muted-foreground line-through">
-                      K{laptop.originalPrice.toLocaleString()}
-                    </span>
-                  )}
+                  <Monitor className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">Graphics</p>
+                    <p className="text-sm text-muted-foreground">{laptop.graphics}</p>
+                  </div>
                 </div>
-                {savings > 0 && (
-                  <Badge variant="destructive">
-                    Save K{savings}
-                  </Badge>
-                )}
-              </div>
-              <div className="text-sm text-muted-foreground mb-3">
-                or K{laptop.weeklyPayment}/week with our payment plan
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Button 
-                  className="w-full"
-                  onClick={() => handleApplyForPlan()}
-                >
-                  Start Payment Plan
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setShowCalculator(!showCalculator)}
-                >
-                  {showCalculator ? "Hide" : "Calculate"} Plan
-                </Button>
-              </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <PaymentPlanCalculator
+          laptopPrice={laptop.price}
+          laptopName={`${laptop.brand} ${laptop.name}`}
+        />
+
+        {laptop.description && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Description</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">{laptop.description}</p>
             </CardContent>
           </Card>
-
-          {/* Payment Plan Calculator */}
-          {showCalculator && (
-            <PaymentPlanCalculator 
-              laptopPrice={laptop.price}
-              laptopName={`${laptop.brand} ${laptop.name}`}
-            />
-          )}
-
-          {/* Key Specifications */}
-          <Card>
-            <CardContent className="p-4">
-              <h2 className="text-lg font-semibold mb-3">Key Specifications</h2>
-              <div className="grid grid-cols-1 gap-3">
-                <div className="flex items-center justify-between py-2 border-b border-border/50">
-                  <div className="flex items-center space-x-2">
-                    <Cpu className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Processor</span>
-                  </div>
-                  <span className="text-sm font-medium">{laptop.processor}</span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-b border-border/50">
-                  <div className="flex items-center space-x-2">
-                    <MemoryStick className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Memory</span>
-                  </div>
-                  <span className="text-sm font-medium">{laptop.ram}</span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-b border-border/50">
-                  <div className="flex items-center space-x-2">
-                    <HardDrive className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Storage</span>
-                  </div>
-                  <span className="text-sm font-medium">{laptop.storage}</span>
-                </div>
-                <div className="flex items-center justify-between py-2">
-                  <div className="flex items-center space-x-2">
-                    <Monitor className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Display</span>
-                  </div>
-                  <span className="text-sm font-medium">{laptop.display}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Additional Features */}
-          <Card>
-            <CardContent className="p-4">
-              <h2 className="text-lg font-semibold mb-3">Features</h2>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center space-x-2 text-sm">
-                  <Wifi className="h-4 w-4 text-green-500" />
-                  <span>Wi-Fi 6</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm">
-                  <Battery className="h-4 w-4 text-green-500" />
-                  <span>10+ hours battery</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm">
-                  <Camera className="h-4 w-4 text-green-500" />
-                  <span>HD Webcam</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm">
-                  <Volume2 className="h-4 w-4 text-green-500" />
-                  <span>Premium Audio</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Description */}
-          <Card>
-            <CardContent className="p-4">
-              <h2 className="text-lg font-semibold mb-3">Description</h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                The {laptop.brand} {laptop.name} delivers exceptional performance and portability. 
-                Perfect for work, study, and entertainment, this laptop combines powerful hardware 
-                with sleek design. With our flexible payment plans, you can get the laptop you need 
-                without breaking the bank.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        )}
       </div>
 
       {/* Fixed Bottom Action */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4">
-        <div className="flex space-x-3">
-          <Button variant="outline" className="flex-1">
-            Add to Wishlist
-          </Button>
-          <Button 
-            className="flex-2"
-            onClick={() => handleApplyForPlan()}
-          >
-            Apply for Payment Plan
-          </Button>
-        </div>
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 max-w-2xl mx-auto">
+        <Button className="w-full" size="lg" onClick={handleApplyForPlan}>
+          Apply for Payment Plan - K{selectedPlan.weeklyPayment}/week
+        </Button>
       </div>
     </div>
   );
