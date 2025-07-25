@@ -16,6 +16,7 @@ import LaptopDetails from "./pages/Client/LaptopDetails";
 import ApplyForPlan from "./pages/Client/ApplyForPlan";
 import AddLaptop from "./pages/Admin/AddLaptop";
 import Notifications from "./pages/Client/Notifications";
+import PaymentHistory from "./pages/Client/PaymentHistory";
 import NotFound from "./pages/NotFound";
 import InventoryManagement from "./pages/Admin/InventoryManagement";
 import StockMovementsHistory from "./pages/Admin/StockMovementsHistory";
@@ -79,12 +80,17 @@ const App = () => (
               <ApplyForPlan />
              </RequireAuth>
             } />
-          <Route path="/notifications" element={
-            <RequireAuth>
-              <Notifications />
+           <Route path="/notifications" element={
+             <RequireAuth>
+               <Notifications />
              </RequireAuth>
-            } />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+             } />
+           <Route path="/payment-history" element={
+             <RequireAuth>
+               <PaymentHistory />
+             </RequireAuth>
+             } />
+           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

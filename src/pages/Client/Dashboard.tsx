@@ -196,15 +196,17 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-md transition-shadow group">
-                <CardContent className="p-4 lg:p-6 text-center">
-                  <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                    <History className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold mb-1 text-sm lg:text-base">Payment History</h3>
-                  <p className="text-xs lg:text-sm text-muted-foreground">View all transactions</p>
-                </CardContent>
-              </Card>
+              <Link to="/payment-history">
+                <Card className="cursor-pointer hover:shadow-md transition-shadow group h-full">
+                  <CardContent className="p-4 lg:p-6 text-center">
+                    <div className="mb-3 inline-flex p-3 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                      <History className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
+                    </div>
+                    <h3 className="font-semibold mb-1 text-sm lg:text-base">Payment History</h3>
+                    <p className="text-xs lg:text-sm text-muted-foreground">View all transactions</p>
+                  </CardContent>
+                </Card>
+              </Link>
 
               <Card className="cursor-pointer hover:shadow-md transition-shadow group">
                 <CardContent className="p-4 lg:p-6 text-center">
