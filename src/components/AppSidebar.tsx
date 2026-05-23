@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/badge";
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Browse Laptops", url: "/catalog", icon: Laptop },
-  { title: "Payment History", url: "/payments", icon: History },
+  { title: "Payment History", url: "/payment-history", icon: History },
   { title: "Profile", url: "/profile", icon: User },
 ];
 
@@ -67,7 +67,7 @@ export function AppSidebar() {
             <Laptop className="h-6 w-6 text-primary" />
             {!isCollapsed && (
               <div>
-                <h2 className="text-lg font-bold text-primary">Uncle Kapasa's</h2>
+                <h2 className="text-lg font-bold text-primary">fiTech</h2>
                 <Badge variant="secondary" className="text-xs">Premium Member</Badge>
               </div>
             )}

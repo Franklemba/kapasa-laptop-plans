@@ -153,7 +153,7 @@ const PaymentHistory = () => {
   };
 
   const formatAmount = (amount: number) => {
-    return `$${amount.toLocaleString()}`;
+    return `ZMK ${amount.toLocaleString()}`;
   };
 
   const getPaymentMethodBadge = (method: string): "default" | "destructive" | "outline" | "secondary" => {

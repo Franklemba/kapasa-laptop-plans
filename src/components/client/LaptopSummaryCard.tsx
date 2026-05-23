@@ -27,7 +27,7 @@ export const LaptopSummaryCard = ({ laptop, weeklyPayment, downPayment, loanTerm
             </p>
           </div>
           <div className="text-right">
-            <p className="text-lg font-bold">K{laptop.price.toLocaleString()}</p>
+            <p className="text-lg font-bold">ZMK {laptop.price.toLocaleString()}</p>
           </div>
         </div>
       </CardContent>

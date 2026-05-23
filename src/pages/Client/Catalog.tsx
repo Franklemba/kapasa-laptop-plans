@@ -110,7 +110,7 @@ const Catalog = () => {
             onClick={() => setPriceFilter("budget")}
             className="whitespace-nowrap"
           >
-            Under K4000
+            Under ZMK 4000
           </Button>
           <Button
             variant={priceFilter === "mid" ? "default" : "outline"}
@@ -118,7 +118,7 @@ const Catalog = () => {
             onClick={() => setPriceFilter("mid")}
             className="whitespace-nowrap"
           >
-            K4000 - K6500
+            ZMK 4000 - ZMK 6500
           </Button>
           <Button
             variant={priceFilter === "premium" ? "default" : "outline"}
@@ -126,7 +126,7 @@ const Catalog = () => {
             onClick={() => setPriceFilter("premium")}
             className="whitespace-nowrap"
           >
-            K6500+
+            ZMK 6500+
           </Button>
         </div>
       </div>

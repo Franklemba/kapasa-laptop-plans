@@ -28,7 +28,7 @@ export function MobileLayout({ children, notifications = 0 }: MobileLayoutProps)
             <div className="flex items-center justify-between p-4">
               <div className="flex items-center space-x-2">
                 <SidebarTrigger className="mr-2" />
-                <h1 className="text-lg font-bold text-primary">Uncle Kapasa's</h1>
+                <h1 className="text-lg font-bold text-primary">fiTech</h1>
               </div>
               
               <div className="flex items-center space-x-2">

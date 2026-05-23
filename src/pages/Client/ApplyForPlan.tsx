@@ -172,7 +172,7 @@ const ApplyForPlan = () => {
     setIsSubmitting(true);
     
     try {
-      await submitPaymentPlanApplication(
+      const result = await submitPaymentPlanApplication(
         profile.id,
         id!,
         formData,
@@ -180,14 +180,17 @@ const ApplyForPlan = () => {
       );
 
       toast({
-        title: "Application Submitted!",
-        description: "We'll review your application and get back to you within 24 hours.",
+        title: "Application Submitted Successfully!",
+        description: "Your payment plan application has been submitted. We'll review it and get back to you within 24 hours.",
       });
-      navigate(`/catalog/${id}`);
-    } catch (error) {
+      
+      // Navigate to dashboard to see the pending plan
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Submission error:', error);
       toast({
         title: "Submission Error",
-        description: "Failed to submit application. Please try again.",
+        description: error.message || "Failed to submit application. Please try again.",
         variant: "destructive"
       });
     } finally {

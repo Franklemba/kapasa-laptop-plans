@@ -87,7 +87,7 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
       <CardContent className="space-y-6">
         {/* Down Payment */}
         <div className="space-y-3">
-          <Label>Down Payment: K{downPayment.toLocaleString()} ({downPaymentPercentage}%)</Label>
+          <Label>Down Payment: ZMK {downPayment.toLocaleString()} ({downPaymentPercentage}%)</Label>
           <Slider
             value={[downPayment]}
             onValueChange={(value) => setDownPayment(value[0])}
@@ -97,8 +97,8 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
             className="w-full"
           />
           <div className="flex justify-between text-sm text-muted-foreground">
-            <span>K{minDownPayment.toLocaleString()}</span>
-            <span>K{maxDownPayment.toLocaleString()}</span>
+            <span>ZMK {minDownPayment.toLocaleString()}</span>
+            <span>ZMK {maxDownPayment.toLocaleString()}</span>
           </div>
         </div>
 
@@ -150,26 +150,26 @@ const PaymentPlanCalculator = ({ laptopPrice, laptopName }: PaymentPlanCalculato
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Weekly Payment:</span>
               <span className="text-xl font-bold text-primary">
-                K{weeklyPayment.toLocaleString()}
+                ZMK {weeklyPayment.toLocaleString()}
               </span>
             </div>
             
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Total Payment:</span>
-              <span className="font-medium">K{totalPayment.toLocaleString()}</span>
+              <span className="font-medium">ZMK {totalPayment.toLocaleString()}</span>
             </div>
             
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Total Interest:</span>
               <span className="font-medium text-destructive">
-                K{totalInterest.toLocaleString()}
+                ZMK {totalInterest.toLocaleString()}
               </span>
             </div>
             
             <div className="flex justify-between items-center pt-2 border-t">
               <span className="text-sm text-muted-foreground">Loan Amount:</span>
               <span className="font-medium">
-                K{(laptopPrice - downPayment).toLocaleString()}
+                ZMK {(laptopPrice - downPayment).toLocaleString()}
               </span>
             </div>
           </div>

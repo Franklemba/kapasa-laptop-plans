@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Laptop, Users, Search, Plus, Edit, Eye, Trash2, Phone, Mail, ArrowLeft,MapPin } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -225,13 +226,13 @@ const ManageClients = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
+    <AdminLayout>
+      <div className="container mx-auto py-8 px-4 max-w-7xl">
       {/* <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Laptop className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">Uncle Kapasa's - Manage Clients</h1>
+            <h1 className="text-2xl font-bold text-primary">fiTech - Manage Clients</h1>
           </div>
           <Button variant="outline" size="sm">
             Back to Admin
@@ -392,7 +393,7 @@ const ManageClients = () => {
                       name="monthly_income"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Monthly Income ($)</FormLabel>
+                          <FormLabel>Monthly Income (ZMK)</FormLabel>
                           <FormControl>
                             <Input 
                               type="number" 
@@ -668,6 +669,7 @@ const ManageClients = () => {
         </Card>
       </div>
     </div>
+    </AdminLayout>
   );
 };
 

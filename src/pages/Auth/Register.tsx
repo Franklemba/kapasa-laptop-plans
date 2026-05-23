@@ -44,7 +44,10 @@ const Register = () => {
     // Create user with Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: formData.email,
-      password: formData.password
+      password: formData.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/complete-profile`
+      }
     });
 
     if (authError) {
@@ -53,12 +56,22 @@ const Register = () => {
       return;
     }
 
-    toast({
-      title: "Check your email",
-      description: "A confirmation link has been sent to your email. Please verify your account before logging in."
-    });
-    setIsLoading(false);
-    navigate("/login");
+    // Check if user was created and logged in (local dev doesn't require email confirmation)
+    if (authData.user) {
+      toast({
+        title: "Account Created!",
+        description: "Please complete your profile to continue."
+      });
+      setIsLoading(false);
+      navigate("/complete-profile");
+    } else {
+      toast({
+        title: "Check your email",
+        description: "A confirmation link has been sent to your email. Please verify your account before logging in."
+      });
+      setIsLoading(false);
+      navigate("/login");
+    }
   };
 
   return (
@@ -67,7 +80,7 @@ const Register = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Laptop className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">Uncle Kapasa's</h1>
+            <h1 className="text-2xl font-bold text-primary">fiTech</h1>
           </div>
           <CardTitle className="text-2xl">Create Your Account</CardTitle>
           <CardDescription>

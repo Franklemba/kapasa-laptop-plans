@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { 
@@ -228,7 +229,8 @@ const StockMovementsHistory = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
+    <AdminLayout>
+      <div className="container mx-auto py-8 px-4 max-w-7xl">
       {/* Header */}
       <header className="mb-6">
         <div className="flex items-center justify-between">
@@ -476,6 +478,7 @@ const StockMovementsHistory = () => {
         </CardContent>
       </Card>
     </div>
+    </AdminLayout>
   );
 };
 

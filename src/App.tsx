@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RequireAuth } from "@/pages/Auth/RequireAuth";
+import { RequireAdmin } from "@/pages/Auth/RequireAdmin";
 import Landing from "./pages/Landing";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
@@ -21,6 +22,12 @@ import NotFound from "./pages/NotFound";
 import InventoryManagement from "./pages/Admin/InventoryManagement";
 import StockMovementsHistory from "./pages/Admin/StockMovementsHistory";
 import ManageClients from "./pages/Admin/ManageClients";
+import PendingApplications from "./pages/Admin/PendingApplications";
+import RecordPayment from "./pages/Admin/RecordPayment";
+import ViewReceipt from "./pages/Client/ViewReceipt";
+import Profile from "./pages/Client/Profile";
+import Settings from "./pages/Client/Settings";
+import ClientPaymentHistory from "./pages/Admin/ClientPaymentHistory";
 
 const queryClient = new QueryClient();
 
@@ -40,41 +47,68 @@ const App = () => (
                  <Dashboard />
               </RequireAuth>
             } />
+          {/* Admin routes - require both auth and admin role */}
           <Route path="/admin" element={
            <RequireAuth>
-            <AdminDashboard />
+            <RequireAdmin>
+              <AdminDashboard />
+            </RequireAdmin>
           </RequireAuth>
             } />
           <Route path="/add-laptop" element={
             <RequireAuth>
-              <AddLaptop />
+              <RequireAdmin>
+                <AddLaptop />
+              </RequireAdmin>
             </RequireAuth>
             } />
           <Route path="/inventory" element={
             <RequireAuth>
-              <InventoryManagement />
+              <RequireAdmin>
+                <InventoryManagement />
+              </RequireAdmin>
              </RequireAuth>
             } />
           <Route path="/stock-movements" element={
             <RequireAuth>
-              <StockMovementsHistory />
+              <RequireAdmin>
+                <StockMovementsHistory />
+              </RequireAdmin>
              </RequireAuth>
             } />
           <Route path="/manage-clients" element={
             <RequireAuth>
-              <ManageClients />
+              <RequireAdmin>
+                <ManageClients />
+              </RequireAdmin>
              </RequireAuth>
             } />
-          <Route path="/catalog" element={
+          <Route path="/pending-applications" element={
             <RequireAuth>
-              <Catalog />
+              <RequireAdmin>
+                <PendingApplications />
+              </RequireAdmin>
              </RequireAuth>
             } />
-          <Route path="/catalog/:id" element={
+          <Route path="/record-payment" element={
             <RequireAuth>
-              <LaptopDetails />
+              <RequireAdmin>
+                <RecordPayment />
+              </RequireAdmin>
              </RequireAuth>
             } />
+          <Route path="/client-payment-history" element={
+            <RequireAuth>
+              <RequireAdmin>
+                <ClientPaymentHistory />
+              </RequireAdmin>
+             </RequireAuth>
+            } />
+          {/* Public routes - no auth required */}
+          <Route path="/catalog" element={<Catalog />} />
+          <Route path="/catalog/:id" element={<LaptopDetails />} />
+          
+          {/* Protected route - auth required to apply */}
           <Route path="/catalog/:id/apply" element={
             <RequireAuth>
               <ApplyForPlan />
@@ -88,6 +122,21 @@ const App = () => (
            <Route path="/payment-history" element={
              <RequireAuth>
                <PaymentHistory />
+             </RequireAuth>
+             } />
+           <Route path="/receipt/:paymentId" element={
+             <RequireAuth>
+               <ViewReceipt />
+             </RequireAuth>
+             } />
+           <Route path="/profile" element={
+             <RequireAuth>
+               <Profile />
+             </RequireAuth>
+             } />
+           <Route path="/settings" element={
+             <RequireAuth>
+               <Settings />
              </RequireAuth>
              } />
            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

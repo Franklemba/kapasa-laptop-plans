@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,50 +17,27 @@ import {
 } from "lucide-react";
 import { MobileLayout } from "@/components/MobileLayout";
 import { toast } from "@/hooks/use-toast";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { useClientProfile } from "@/hooks/useClientProfile";
+import { fetchClientPaymentPlans } from "@/services/paymentPlanService";
+import { fetchPaymentsByClient } from "@/services/paymentService";
+
+interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  type: string;
+  category: string;
+  read: boolean;
+  timestamp: string;
+  icon: any;
+}
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "Payment Due Reminder",
-      message: "Your weekly payment of $100 is due in 3 days (Dec 15, 2024)",
-      type: "warning",
-      category: "payment",
-      read: false,
-      timestamp: "2024-12-12T10:30:00Z",
-      icon: Calendar
-    },
-    {
-      id: 2,
-      title: "Payment Received",
-      message: "Your payment of $100 has been successfully processed",
-      type: "success",
-      category: "payment",
-      read: false,
-      timestamp: "2024-12-08T14:22:00Z",
-      icon: CheckCircle
-    },
-    {
-      id: 3,
-      title: "Welcome to Uncle Kapasa's",
-      message: "Your laptop payment plan has been activated. Welcome aboard!",
-      type: "info",
-      category: "system",
-      read: true,
-      timestamp: "2024-11-25T09:15:00Z",
-      icon: Info
-    },
-    {
-      id: 4,
-      title: "Payment Method Updated",
-      message: "Your payment method ending in ****1234 has been updated successfully",
-      type: "info",
-      category: "account",
-      read: true,
-      timestamp: "2024-11-20T16:45:00Z",
-      icon: CreditCard
-    }
-  ]);
+  const { user } = useAuthCheck();
+  const { profile } = useClientProfile(user?.id || null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [notificationSettings, setNotificationSettings] = useState({
     paymentReminders: true,
@@ -69,6 +46,150 @@ const Notifications = () => {
     marketingEmails: false,
     smsNotifications: true
   });
+
+  useEffect(() => {
+    if (profile?.id) {
+      loadNotifications();
+    }
+  }, [profile?.id]);
+
+  const loadNotifications = async () => {
+    try {
+      setLoading(true);
+      const [plansData, paymentsData] = await Promise.all([
+        fetchClientPaymentPlans(profile!.id),
+        fetchPaymentsByClient(profile!.id)
+      ]);
+
+      const generatedNotifications = generateNotifications(plansData || [], paymentsData || []);
+      setNotifications(generatedNotifications);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateNotifications = (plans: any[], paymentsData: any[]): Notification[] => {
+    const notifs: Notification[] = [];
+    let notifId = 1;
+
+    // Get active plans
+    const activePlans = plans.filter(plan => plan.status === 'active');
+
+    // Payment due notifications
+    activePlans.forEach(plan => {
+      const startDate = new Date(plan.start_date);
+      const weeksPassed = Math.floor(plan.amount_paid / plan.weekly_payment);
+      const nextPaymentDate = new Date(startDate);
+      nextPaymentDate.setDate(startDate.getDate() + ((weeksPassed + 1) * 7));
+      
+      const today = new Date();
+      const daysUntilPayment = Math.ceil((nextPaymentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      // Payment due soon (within 7 days)
+      if (daysUntilPayment >= 0 && daysUntilPayment <= 7) {
+        notifs.push({
+          id: notifId++,
+          title: "Payment Due Reminder",
+          message: `Your weekly payment of ZMK ${plan.weekly_payment.toLocaleString()} is due in ${daysUntilPayment} day${daysUntilPayment !== 1 ? 's' : ''} (${nextPaymentDate.toLocaleDateString()})`,
+          type: daysUntilPayment <= 3 ? "warning" : "info",
+          category: "payment",
+          read: false,
+          timestamp: new Date().toISOString(),
+          icon: Calendar
+        });
+      }
+
+      // Payment overdue
+      if (daysUntilPayment < 0) {
+        notifs.push({
+          id: notifId++,
+          title: "Payment Overdue",
+          message: `Your payment is overdue by ${Math.abs(daysUntilPayment)} day${Math.abs(daysUntilPayment) !== 1 ? 's' : ''}. Please make payment as soon as possible.`,
+          type: "error",
+          category: "payment",
+          read: false,
+          timestamp: new Date().toISOString(),
+          icon: AlertCircle
+        });
+      }
+    });
+
+    // Recent payment confirmations (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const recentPayments = paymentsData
+      .filter(payment => new Date(payment.payment_date) >= thirtyDaysAgo)
+      .sort((a, b) => new Date(b.payment_date).getTime() - new Date(a.payment_date).getTime())
+      .slice(0, 5); // Show last 5 payments
+
+    recentPayments.forEach(payment => {
+      notifs.push({
+        id: notifId++,
+        title: "Payment Received",
+        message: `Your payment of ZMK ${payment.amount.toLocaleString()} has been successfully processed on ${new Date(payment.payment_date).toLocaleDateString()}`,
+        type: "success",
+        category: "payment",
+        read: false,
+        timestamp: payment.payment_date,
+        icon: CheckCircle
+      });
+    });
+
+    // Pending application notifications
+    const pendingPlans = plans.filter(plan => plan.status === 'pending');
+    pendingPlans.forEach(plan => {
+      notifs.push({
+        id: notifId++,
+        title: "Application Under Review",
+        message: `Your payment plan application for ${plan.laptop?.name || 'laptop'} is being reviewed. We'll notify you once it's approved.`,
+        type: "info",
+        category: "system",
+        read: false,
+        timestamp: plan.created_at || new Date().toISOString(),
+        icon: Info
+      });
+    });
+
+    // Completed plan notifications
+    const recentlyCompleted = plans.filter(plan => {
+      if (plan.status !== 'completed') return false;
+      const endDate = new Date(plan.end_date || plan.updated_at);
+      return endDate >= thirtyDaysAgo;
+    });
+
+    recentlyCompleted.forEach(plan => {
+      notifs.push({
+        id: notifId++,
+        title: "Payment Plan Completed!",
+        message: `Congratulations! You've successfully completed your payment plan for ${plan.laptop?.name || 'your laptop'}. Thank you for your business!`,
+        type: "success",
+        category: "system",
+        read: false,
+        timestamp: plan.end_date || plan.updated_at || new Date().toISOString(),
+        icon: CheckCircle
+      });
+    });
+
+    // Welcome notification for new users (if no other notifications)
+    if (notifs.length === 0 && plans.length === 0) {
+      notifs.push({
+        id: notifId++,
+        title: "Welcome to fiTech",
+        message: "Start browsing our laptop catalog and apply for a flexible payment plan today!",
+        type: "info",
+        category: "system",
+        read: false,
+        timestamp: new Date().toISOString(),
+        icon: Info
+      });
+    }
+
+    // Sort by timestamp (newest first)
+    return notifs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  };
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -104,6 +225,8 @@ const Notifications = () => {
     switch (type) {
       case 'warning':
         return 'border-yellow-200 bg-yellow-50';
+      case 'error':
+        return 'border-red-200 bg-red-50';
       case 'success':
         return 'border-green-200 bg-green-50';
       case 'info':
@@ -117,6 +240,8 @@ const Notifications = () => {
     switch (type) {
       case 'warning':
         return 'text-yellow-600';
+      case 'error':
+        return 'text-red-600';
       case 'success':
         return 'text-green-600';
       case 'info':
@@ -381,7 +506,7 @@ const Notifications = () => {
                   <span>Notification Preferences</span>
                 </CardTitle>
                 <CardDescription>
-                  Manage how you receive notifications from Uncle Kapasa's
+                  Manage how you receive notifications from fiTech
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">

@@ -106,7 +106,7 @@ const Login = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Laptop className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">Uncle Kapasa's</h1>
+            <h1 className="text-2xl font-bold text-primary">fiTech</h1>
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>

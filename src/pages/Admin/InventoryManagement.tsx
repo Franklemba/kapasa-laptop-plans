@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { 
   Laptop, 
   ArrowLeft, 
@@ -168,20 +169,23 @@ const InventoryManagement = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <Package className="h-8 w-8 animate-spin mx-auto mb-2" />
-            <p>Loading inventory...</p>
+      <AdminLayout>
+        <div className="container mx-auto py-8 px-4">
+          <div className="flex justify-center items-center h-64">
+            <div className="text-center">
+              <Package className="h-8 w-8 animate-spin mx-auto mb-2" />
+              <p>Loading inventory...</p>
+            </div>
           </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
-      {/* Header */}
+    <AdminLayout>
+      <div className="container mx-auto py-8 px-4 max-w-7xl">
+        {/* Header */}
       <header className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -243,7 +247,7 @@ const InventoryManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Value</p>
-                <p className="text-2xl font-bold">K{totalValue.toLocaleString()}</p>
+                <p className="text-2xl font-bold">ZMK {totalValue.toLocaleString()}</p>
               </div>
               <BarChart3 className="h-8 w-8 text-green-500" />
             </div>
@@ -345,7 +349,7 @@ const InventoryManagement = () => {
                         {laptop.sku || 'N/A'}
                       </code>
                     </TableCell>
-                    <TableCell>K{laptop.price.toLocaleString()}</TableCell>
+                    <TableCell>ZMK {laptop.price.toLocaleString()}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <span className="font-medium">{laptop.stock_quantity}</span>
@@ -384,6 +388,7 @@ const InventoryManagement = () => {
         </CardContent>
       </Card>
     </div>
+    </AdminLayout>
   );
 };
 
