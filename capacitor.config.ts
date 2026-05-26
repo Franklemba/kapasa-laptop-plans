@@ -1,13 +1,10 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.lovable.kapasalaptopplans', // Changed to valid format
-  appName: 'kapasa-laptop-plans',
+  appId: 'com.fitech.laptopplans',
+  appName: 'fiTech',
   webDir: 'dist',
-  server: {
-    url: 'https://11e5512d-f62e-48db-b845-7f1bfe2d4e96.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
+};
   plugins: {
     SplashScreen: {
       launchShowDuration: 3000,

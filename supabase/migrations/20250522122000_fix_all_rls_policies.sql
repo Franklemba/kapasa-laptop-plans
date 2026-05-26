@@ -5,6 +5,15 @@
 -- PAYMENTS TABLE POLICIES
 -- ============================================================================
 
+-- Drop existing policies first
+DROP POLICY IF EXISTS "Users can view their own payments" ON payments;
+DROP POLICY IF EXISTS "Admins can view all payments" ON payments;
+DROP POLICY IF EXISTS "Admins can manage all payments" ON payments;
+DROP POLICY IF EXISTS "Anyone can view laptops" ON laptops;
+DROP POLICY IF EXISTS "Admins can manage laptops" ON laptops;
+DROP POLICY IF EXISTS "Admins can view stock movements" ON stock_movements;
+DROP POLICY IF EXISTS "Admins can manage stock movements" ON stock_movements;
+
 -- Users can view their own payments
 CREATE POLICY "Users can view their own payments"
 ON payments

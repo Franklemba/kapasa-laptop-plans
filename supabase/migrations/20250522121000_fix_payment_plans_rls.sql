@@ -2,7 +2,7 @@
 -- This allows users to create and manage their own payment plans
 -- and allows admins to manage all payment plans
 
--- Drop existing policies if any
+-- Drop existing policies if any (including any from initial schema)
 DROP POLICY IF EXISTS "Users can view their own payment plans" ON payment_plans;
 DROP POLICY IF EXISTS "Users can insert their own payment plans" ON payment_plans;
 DROP POLICY IF EXISTS "Users can update their own payment plans" ON payment_plans;
