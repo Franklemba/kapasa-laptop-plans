@@ -1,9 +1,9 @@
 services:
   - type: web
     name: fitech-laptop-plans
-    env: static
-    buildCommand: npm install && NODE_ENV=production npm run build
-    staticPublishPath: ./dist
+    env: node
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
     routes:
       - type: rewrite
         source: /*
