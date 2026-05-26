@@ -23,7 +23,10 @@ export default defineConfig(({ mode }) => ({
     ],
   },
   plugins: [
-    react(),
+    react({
+      // Ensure production JSX runtime is used in production builds
+      jsxRuntime: mode === 'production' ? 'automatic' : 'automatic',
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -32,7 +35,8 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'dist',
-    sourcemap: mode === 'development',
+    sourcemap: false, // Disable sourcemaps in production for smaller bundle
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: {
