@@ -7,6 +7,20 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    allowedHosts: [
+      'localhost',
+      '.onrender.com', // Allow all Render subdomains
+      'fitech-cjyj.onrender.com', // Your specific Render URL
+    ],
+  },
+  preview: {
+    host: "::",
+    port: 8080,
+    allowedHosts: [
+      'localhost',
+      '.onrender.com',
+      'fitech-cjyj.onrender.com',
+    ],
   },
   plugins: [
     react(),
@@ -14,6 +28,19 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: mode === 'development',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'supabase-vendor': ['@supabase/supabase-js'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-tabs'],
+        },
+      },
     },
   },
 }));
