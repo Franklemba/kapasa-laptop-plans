@@ -156,17 +156,15 @@ const Landing = () => {
                       <Card className="h-full border-2 hover:border-primary transition-all duration-300 hover:shadow-lg overflow-hidden">
                         {/* Image */}
                         <div className="relative h-48 bg-gradient-to-br from-primary/5 to-secondary/10 overflow-hidden">
-                          {laptop.image_url ? (
-                            <img 
-                              src={laptop.image_url} 
-                              alt={laptop.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Laptop className="h-20 w-20 text-primary/20" />
-                            </div>
-                          )}
+                          <img 
+                            src={laptop.image_url || `https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop`} 
+                            alt={laptop.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              // Fallback if image fails to load
+                              e.currentTarget.src = 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop';
+                            }}
+                          />
                           {savingsPercentage > 0 && (
                             <Badge className="absolute top-3 right-3 bg-green-600">
                               Save {savingsPercentage}%
