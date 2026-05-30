@@ -1,12 +1,27 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+// @ts-ignore — added by test setup
+/// <reference types="vitest" />
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  // ─── Vitest config (only active when running tests) ──────────
+  const test = {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/tests/setup.ts'],
+    include: ['src/tests/**/*.test.ts', 'src/tests/**/*.test.tsx'],
+    coverage: {
+      reporter: ['text', 'html'],
+      include: ['src/services/**', 'src/hooks/**'],
+    },
+    reporters: ['verbose'],
+  };
   const isProduction = mode === 'production' || process.env.NODE_ENV === 'production';
   
   return {
+    test,
     server: {
       host: "::",
       port: 8080,

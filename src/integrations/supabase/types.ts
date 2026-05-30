@@ -14,57 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip_address: string | null
+          new_values: Json | null
+          old_values: Json | null
+          performed_by: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          performed_by?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          performed_by?: string | null
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           address: string | null
+          city: string | null
           created_at: string
           credit_score: number | null
+          date_of_birth: string | null
           email: string
+          employer: string | null
           employment_status: string | null
           first_name: string
           id: string
+          job_title: string | null
           last_name: string
           monthly_income: number | null
           national_id: string | null
           notes: string | null
           phone: string | null
+          province: string | null
+          role: string
           status: string
+          street_address: string | null
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           address?: string | null
+          city?: string | null
           created_at?: string
           credit_score?: number | null
+          date_of_birth?: string | null
           email: string
+          employer?: string | null
           employment_status?: string | null
           first_name: string
           id?: string
+          job_title?: string | null
           last_name: string
           monthly_income?: number | null
           national_id?: string | null
           notes?: string | null
           phone?: string | null
+          province?: string | null
+          role?: string
           status?: string
+          street_address?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           address?: string | null
+          city?: string | null
           created_at?: string
           credit_score?: number | null
+          date_of_birth?: string | null
           email?: string
+          employer?: string | null
           employment_status?: string | null
           first_name?: string
           id?: string
+          job_title?: string | null
           last_name?: string
           monthly_income?: number | null
           national_id?: string | null
           notes?: string | null
           phone?: string | null
+          province?: string | null
+          role?: string
           status?: string
+          street_address?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -112,6 +172,7 @@ export type Database = {
           condition: string
           created_at: string
           created_by: string | null
+          default_weekly_payment: number
           description: string | null
           display: string
           graphics: string | null
@@ -133,13 +194,13 @@ export type Database = {
           storage: string
           updated_at: string
           updated_by: string | null
-          weekly_payment: number
         }
         Insert: {
           brand: string
           condition?: string
           created_at?: string
           created_by?: string | null
+          default_weekly_payment: number
           description?: string | null
           display: string
           graphics?: string | null
@@ -161,13 +222,13 @@ export type Database = {
           storage: string
           updated_at?: string
           updated_by?: string | null
-          weekly_payment: number
         }
         Update: {
           brand?: string
           condition?: string
           created_at?: string
           created_by?: string | null
+          default_weekly_payment?: number
           description?: string | null
           display?: string
           graphics?: string | null
@@ -189,18 +250,117 @@ export type Database = {
           storage?: string
           updated_at?: string
           updated_by?: string | null
-          weekly_payment?: number
         }
         Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          client_id: string
+          id: string
+          payment_confirmations: boolean
+          payment_reminders: boolean
+          plan_updates: boolean
+          reminder_days_before: number
+          sms_enabled: boolean
+          system_updates: boolean
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          id?: string
+          payment_confirmations?: boolean
+          payment_reminders?: boolean
+          plan_updates?: boolean
+          reminder_days_before?: number
+          sms_enabled?: boolean
+          system_updates?: boolean
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          id?: string
+          payment_confirmations?: boolean
+          payment_reminders?: boolean
+          plan_updates?: boolean
+          reminder_days_before?: number
+          sms_enabled?: boolean
+          system_updates?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          category: string | null
+          client_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          read_at: string | null
+          related_entity_id: string | null
+          related_entity_type: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          category?: string | null
+          client_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          read_at?: string | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          category?: string | null
+          client_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          read_at?: string | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_plans: {
         Row: {
           amount_paid: number
+          approved_at: string | null
+          approved_by: string | null
           client_id: string
           created_at: string
+          down_payment: number
+          end_date: string | null
           id: string
           laptop_id: string
           plan_duration: number
+          rejected_at: string | null
+          rejected_by: string | null
           start_date: string
           status: string
           total_amount: number
@@ -209,11 +369,17 @@ export type Database = {
         }
         Insert: {
           amount_paid?: number
+          approved_at?: string | null
+          approved_by?: string | null
           client_id: string
           created_at?: string
+          down_payment?: number
+          end_date?: string | null
           id?: string
           laptop_id: string
           plan_duration: number
+          rejected_at?: string | null
+          rejected_by?: string | null
           start_date: string
           status?: string
           total_amount: number
@@ -222,11 +388,17 @@ export type Database = {
         }
         Update: {
           amount_paid?: number
+          approved_at?: string | null
+          approved_by?: string | null
           client_id?: string
           created_at?: string
+          down_payment?: number
+          end_date?: string | null
           id?: string
           laptop_id?: string
           plan_duration?: number
+          rejected_at?: string | null
+          rejected_by?: string | null
           start_date?: string
           status?: string
           total_amount?: number
@@ -250,6 +422,57 @@ export type Database = {
           },
         ]
       }
+      payment_schedule: {
+        Row: {
+          amount_due: number
+          created_at: string
+          due_date: string
+          id: string
+          paid_at: string | null
+          payment_id: string | null
+          payment_plan_id: string
+          status: string
+          week_number: number
+        }
+        Insert: {
+          amount_due: number
+          created_at?: string
+          due_date: string
+          id?: string
+          paid_at?: string | null
+          payment_id?: string | null
+          payment_plan_id: string
+          status?: string
+          week_number: number
+        }
+        Update: {
+          amount_due?: number
+          created_at?: string
+          due_date?: string
+          id?: string
+          paid_at?: string | null
+          payment_id?: string | null
+          payment_plan_id?: string
+          status?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_schedule_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_schedule_payment_plan_id_fkey"
+            columns: ["payment_plan_id"]
+            isOneToOne: false
+            referencedRelation: "payment_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -259,6 +482,7 @@ export type Database = {
           payment_date: string
           payment_method: string | null
           payment_plan_id: string
+          recorded_by: string | null
           reference_number: string | null
         }
         Insert: {
@@ -269,6 +493,7 @@ export type Database = {
           payment_date?: string
           payment_method?: string | null
           payment_plan_id: string
+          recorded_by?: string | null
           reference_number?: string | null
         }
         Update: {
@@ -279,6 +504,7 @@ export type Database = {
           payment_date?: string
           payment_method?: string | null
           payment_plan_id?: string
+          recorded_by?: string | null
           reference_number?: string | null
         }
         Relationships: [
@@ -296,10 +522,11 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
-          laptop_id: string
+          laptop_id: string | null
           movement_type: string
           new_quantity: number
           notes: string | null
+          payment_plan_id: string | null
           previous_quantity: number
           quantity: number
           reason: string | null
@@ -309,10 +536,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
-          laptop_id: string
+          laptop_id?: string | null
           movement_type: string
           new_quantity: number
           notes?: string | null
+          payment_plan_id?: string | null
           previous_quantity: number
           quantity: number
           reason?: string | null
@@ -322,10 +550,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
-          laptop_id?: string
+          laptop_id?: string | null
           movement_type?: string
           new_quantity?: number
           notes?: string | null
+          payment_plan_id?: string | null
           previous_quantity?: number
           quantity?: number
           reason?: string | null
@@ -339,6 +568,13 @@ export type Database = {
             referencedRelation: "laptops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "stock_movements_payment_plan_id_fkey"
+            columns: ["payment_plan_id"]
+            isOneToOne: false
+            referencedRelation: "payment_plans"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -346,6 +582,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      record_payment_atomic: {
+        Args: {
+          p_payment_plan_id: string
+          p_amount: number
+          p_payment_date?: string
+          p_payment_method?: string
+          p_reference_number?: string
+          p_notes?: string
+        }
+        Returns: Json
+      }
       update_laptop_stock: {
         Args: {
           p_laptop_id: string
